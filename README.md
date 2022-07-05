@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sample
 
 ## Gestion des applications avec pebbleapp
@@ -145,3 +146,6 @@ Pour un développement local optimal, voici les pré-requis indispensables :
 ## Debug
 A l'installation, si erreur *Error: ENOSPC: System limit for number of file watchers reached*  
 `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
+=======
+# planification
+>>>>>>> 9573bc3f15c9eea2a0f61211dd04bb7fdd016a03
