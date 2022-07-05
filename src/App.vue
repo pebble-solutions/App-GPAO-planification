@@ -9,7 +9,7 @@
 		@structure-change="switchStructure">
 
 		<template v-slot:header>
-			<div class="mx-2 d-flex align-items-center" v-if="openedElement">
+			<!-- <div class="mx-2 d-flex align-items-center" v-if="openedElement">
 				<router-link to="/" custom v-slot="{ navigate, href }">
 					<a class="btn btn-dark me-2" :href="href" @click="navigate">
 						<i class="bi bi-arrow-left"></i>
@@ -34,6 +34,25 @@
 						</li>
 					</ul>
 				</div>
+			</div> -->
+			<div v-if="$route.name == 'Ressources' && projet">				
+				<div class="d-flex align-items-center">
+					<router-link :to="{name:'EditProjet', params:{id:'419'}}" custom v-slot="{navigate, href}" class="mx-2 border-secondary">
+						<a :href="href" @click="navigate" class="btn btn-dark"><!--{{projet.intitule}}--> le nom du projet <i class="fas fa-pen"></i></a>
+					</router-link>
+
+					<router-link :to="{name:'ConfigHeures', params:{id:'419'}}" custom v-slot="{navigate, href}" class="mx-2 border-secondary">
+						<a :href="href" @click="navigate" class="btn btn-secondary"><i class="far fa-clock"></i> Heure de travail</a>
+					</router-link>
+					
+					<router-link :to="{name:'Affectations'}" custom v-slot="{navigate, href}">
+						<a :href="href" @click="navigate" class="btn btn-primary mx-2"><i class="fas fa-user-check"></i> Affecter du personnel</a>
+					</router-link>
+
+					<router-link :to="{name:'EditTimeline'}" custom v-slot="{navigate, href}" class="mx-2">
+						<a :href="href" @click="navigate" class="btn btn-secondary"><i class="fas fa-calendar-alt"></i> {{getDateHuman(timeline.start)}} <i class="fas fa-arrow-right"></i> {{getDateHuman(timeline.end)}}</a>
+					</router-link>
+				</div>
 			</div>
 		</template>
 
@@ -41,13 +60,15 @@
 		<template v-slot:menu>
 			<AppMenu>
 				<AppMenuItem href="/" look="dark" icon="bi bi-house">Accueil</AppMenuItem>
-				<AppMenuItem href="/about" look="dark" icon="bi bi-app">À propos</AppMenuItem>
+				<AppMenuItem href="/ressources/419" look="dark" icon="bi bi-boxes">Ressources</AppMenuItem>
+				<AppMenuItem href="/affectations" look="dark" icon="bi bi-person-plus-fill">Affectations</AppMenuItem>
+				<AppMenuItem href="/planning" look="dark" icon="bi bi-calendar2">Planning</AppMenuItem>
 			</AppMenu>
 		</template>
 
 		<template v-slot:list>
 			<AppMenu>
-				<AppMenuItem :href="'/element/'+el.id" icon="bi bi-file-earmark" v-for="el in elements" :key="el.id">{{el.name}}</AppMenuItem>
+				<!-- <AppMenuItem :href="'/element/'+el.id" icon="bi bi-file-earmark" v-for="el in elements" :key="el.id">{{el.name}}</AppMenuItem> -->
 			</AppMenu>
 		</template>
 
@@ -66,7 +87,7 @@
 import AppWrapper from '@/components/pebble-ui/AppWrapper.vue'
 import AppMenu from '@/components/pebble-ui/AppMenu.vue'
 import AppMenuItem from '@/components/pebble-ui/AppMenuItem.vue'
-import { mapActions, mapState } from 'vuex'
+// import { mapActions, mapState } from 'vuex'
 
 import CONFIG from "@/config.json"
 
@@ -80,12 +101,13 @@ export default {
 			pending: {
 				elements: true
 			},
-			isConnectedUser: false
+			isConnectedUser: false,
+			projetId:null
 		}
 	},
 
 	computed: {
-		...mapState(['elements', 'openedElement'])
+		// ...mapState(['elements', 'openedElement'])
 	},
 
 	methods: {
@@ -133,14 +155,15 @@ export default {
 			this.listElements();
 		},
 
-		...mapActions(['closeElement'])
+		//...mapActions(['closeElement'])
 	},
 
 	components: {
 		AppWrapper,
 		AppMenu,
 		AppMenuItem
-	}
+	},
+
 
 }
 </script>

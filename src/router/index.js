@@ -8,28 +8,36 @@ const routes = [
     component: Home
   },
   {
-    path: '/about',
-    name: 'À propos',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/ressources/:id',
+    name: 'Ressources',
+    component: () => import('../views/Ressources.vue'),
   },
   {
-    path: '/element/:id',
-    name: 'Element',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Element.vue'),
-    children: [
-      {
-        path: 'properties',
-        component: () => import('../views/ElementProperties.vue')
-      },
-      {
-        path: 'informations',
-        component: () => import('../views/ElementInformations.vue')
-      }
-    ]
-  }
+    path: '/ressources/:id/config_heures',
+    name: 'ConfigHeures',
+    component: () => import('../views/modals/ConfigHeuresModal.vue')
+  },
+  {
+    path: '/ressources/:id/edit_projet',
+    name: 'EditProjet',
+    component: () => import('../views/modals/EditPtojetModal.vue')
+  },
+  {
+    path: '/ressources/:id/edittimeline',
+    name: 'EditTimeline',
+    component: () => import('../views/modals/EditTimeline.vue')
+  },
+  {
+    path: '/affectations',
+    name: 'Affectations',
+    component: () => import('../views/Affectations.vue')
+  },
+  {
+    path: '/planning',
+    name: 'Planning',
+    component: () => import('../views/Planning.vue')
+  },
+
 ]
 
 const router = createRouter({

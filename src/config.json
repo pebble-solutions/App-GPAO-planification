@@ -1,8 +1,8 @@
 {
-    "name": "sample",
+    "name": "planification",
     "cfg": {
-        "module": "sample",
-        "moduleLabel": "Sample module",
+        "module": "organisation",
+        "moduleLabel": "Planification",
         "aside": true,
         "app_mode": "default",
         "ppp": "private",
