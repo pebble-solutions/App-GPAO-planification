@@ -3,10 +3,6 @@
         <ul class="nav mx-2">
             <slot></slot>
         </ul>
-
-        <ul class="nav mx-2" v-if="slots.aside">
-            <slot name="aside"></slot>
-        </ul>
     </div>
 </template>
 
