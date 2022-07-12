@@ -9,51 +9,44 @@
 		@structure-change="switchStructure">
 
 		<template v-slot:header>
-			<!-- <div class="mx-2 d-flex align-items-center" v-if="openedElement">
-				<router-link to="/" custom v-slot="{ navigate, href }">
-					<a class="btn btn-dark me-2" :href="href" @click="navigate">
-						<i class="bi bi-arrow-left"></i>
-					</a>
-				</router-link>
-				<router-link :to="'/element/'+openedElement.id+'/properties'" custom v-slot="{ navigate, href }">
-					<a class="btn btn-dark me-2" :href="href" @click="navigate">
-						<i class="bi bi-file-earmark me-1"></i>
-						{{openedElement.name}}
-					</a>
+			<div class="d-flex align-items-center" v-if="isRessources && projet">
+				<router-link :to="{name:'EditProjet', params:{id:'419'}}" custom v-slot="{navigate, href}">
+					<a :href="href" @click="navigate" class="btn btn-dark mx-2">{{projet.intitule}} <i class="bi bi-pencil-fill"></i></a>
 				</router-link>
 
-				<div class="dropdown">
-					<button class="btn btn-dark dropdown-toggle" type="button" id="fileDdMenu" data-bs-toggle="dropdown" aria-expanded="false">
-						Fichier
-					</button>
-					<ul class="dropdown-menu" aria-labelledby="fileDdMenu">
-						<li>
-							<router-link :to="'/element/'+openedElement.id+'/informations'" custom v-slot="{ navigate, href }">
-								<a class="dropdown-item" :href="href" @click="navigate">Informations</a>
-							</router-link>
-						</li>
-					</ul>
-				</div>
-			</div> -->
-			<div v-if="$route.name == 'Ressources' && projet">				
-				<div class="d-flex align-items-center">
-					<router-link :to="{name:'EditProjet', params:{id:'419'}}" custom v-slot="{navigate, href}" class="mx-2 border-secondary">
-						<a :href="href" @click="navigate" class="btn btn-dark"><!--{{projet.intitule}}--> le nom du projet <i class="fas fa-pen"></i></a>
-					</router-link>
+				<router-link :to="{name:'ConfigHeures', params:{id:'419'}}" custom v-slot="{navigate, href}">
+					<a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-clock-fill"></i> Heure de travail</a>
+				</router-link>
+				
+				<router-link :to="{name:'Affectations'}" custom v-slot="{navigate, href}">
+					<a :href="href" @click="navigate" class="btn btn-primary mx-2"><i class="bi bi-person-check-fill"></i> Affecter du personnel</a>
+				</router-link>
 
-					<router-link :to="{name:'ConfigHeures', params:{id:'419'}}" custom v-slot="{navigate, href}" class="mx-2 border-secondary">
-						<a :href="href" @click="navigate" class="btn btn-secondary"><i class="far fa-clock"></i> Heure de travail</a>
-					</router-link>
-					
-					<router-link :to="{name:'Affectations'}" custom v-slot="{navigate, href}">
-						<a :href="href" @click="navigate" class="btn btn-primary mx-2"><i class="fas fa-user-check"></i> Affecter du personnel</a>
-					</router-link>
-
-					<router-link :to="{name:'EditTimeline'}" custom v-slot="{navigate, href}" class="mx-2">
-						<a :href="href" @click="navigate" class="btn btn-secondary"><i class="fas fa-calendar-alt"></i> {{getDateHuman(timeline.start)}} <i class="fas fa-arrow-right"></i> {{getDateHuman(timeline.end)}}</a>
-					</router-link>
-				</div>
+				<router-link :to="{name:'EditTimeline', params:{id:'419'}}" custom v-slot="{navigate, href}">
+					<a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-calendar3"></i> {{getDateHuman(timeline.start)}} <i class="bi bi-chevron-compact-right"></i> {{getDateHuman(timeline.end)}}</a>
+				</router-link>
 			</div>
+
+
+			<div class="d-flex align-items-center" v-if="isAffectation">
+
+                <div class="mx-2 border-secondary">
+                    <a href="#!affectation/projects" class="btn btn-secondary"><i class="fas fa-project-diagram"></i> {{projetLabel}}</a>
+                </div>
+
+                <div class="mx-2">
+                    <a href="#!affectation/metiers" class="btn btn-secondary"><i class="fas fa-briefcase"></i> {{metierLabel}}</a>
+                </div>
+                
+                <div class="mx-2">
+                    <a href="#!affectation/date" class="btn btn-secondary"><i class="fas fa-calendar-alt"></i> {{getDateHuman(timeline.start)}} <i class="fas fa-arrow-right"></i> {{getDateHuman(timeline.end)}}</a>
+                </div>
+
+                <div class="mx-2">
+                    <a href="#!affectation/partager" class="btn btn-primary"><i class="fas fa-share-square"></i> Partager</a>
+                </div>
+            </div>
+
 		</template>
 
 
@@ -74,7 +67,7 @@
 
 		<template v-slot:core>
 			<div class="px-2 bg-light">
-				<router-view :cfg="cfg" v-if="isConnectedUser" />
+				<router-view :cfg="cfg" v-if="isConnectedUser" @obj-projet="updateProjet"/>
 			</div>
 		</template>
 
@@ -90,6 +83,9 @@ import AppMenuItem from '@/components/pebble-ui/AppMenuItem.vue'
 // import { mapActions, mapState } from 'vuex'
 
 import CONFIG from "@/config.json"
+import '@/js/date.js'
+
+
 
 export default {
 
@@ -99,18 +95,61 @@ export default {
 			cfgMenu: CONFIG.cfgMenu,
 			cfgSlots: CONFIG.cfgSlots,
 			pending: {
-				elements: true
+				elements: true,
 			},
 			isConnectedUser: false,
-			projetId:null
+			projet:null,
+			timeline: {
+				start:null,
+				end:null
+			},
 		}
 	},
 
 	computed: {
 		// ...mapState(['elements', 'openedElement'])
+		isRessources() {
+			if(	this.$route.name === 'Ressources' || 
+				this.$route.name === 'AjoutGroup' || 
+				this.$route.name === 'ConfigHeures' || 
+				this.$route.name === 'EditProjet' || 
+				this.$route.name === 'EditTimeline' ||
+				this.$route.name === 'AjoutBesoins') 
+			{
+				return true;
+			}
+
+			return false;
+		},
+
+		isAffectation() {
+			if(this.$route.name === 'Affectations') {
+				return true;
+			}
+
+			return false;
+		}
 	},
 
 	methods: {
+		/**
+		 * Retourne la représentation d'une date lisible par un humain.
+		 * @param {DateTime} date Date à analyser
+		 * @param {String} fallbackText Texte à afficher au cas ou date est non renseigné (défaut '')
+		 * @returns {String}
+		 */
+		getDateHuman(date, fallbackText) {
+			fallbackText = typeof fallbackText === 'undefined' ? '' : fallbackText;
+
+			if (date) {
+				return date.toLocaleDateString('fr-FR', {month:'2-digit', day:'2-digit', year:'numeric'});
+			}
+			else {
+				return fallbackText;
+			}
+		},
+
+
 		/**
 		 * Met à jour les informations de l'utilisateur connecté
 		 * @param {Object} user Un objet LocalUser
@@ -155,7 +194,14 @@ export default {
 			this.listElements();
 		},
 
-		//...mapActions(['closeElement'])
+		/**
+		 * Met a jour l'objet projet
+		 * @param {Objet} projet
+		 */
+		updateProjet(projet) {
+			console.log(projet);
+			this.projet = projet;
+		}
 	},
 
 	components: {
@@ -163,6 +209,14 @@ export default {
 		AppMenu,
 		AppMenuItem
 	},
+
+	mounted() {
+		this.timeline.start = new Date();
+        this.timeline.start = this.timeline.start.getMonday();
+
+        this.timeline.end = new Date(this.timeline.start);
+        this.timeline.end.setDate(this.timeline.start.getDate() + 28);
+	}
 
 
 }

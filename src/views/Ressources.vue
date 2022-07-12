@@ -1,5 +1,5 @@
 <template>
-    <div class="col overflow-auto">
+    <div class="col overflow-auto" v-if="projet_id">
         <AppToolbar class-list="position-sticky" style-list="left:0px; right:0px; z-index:500;" id="main">
             <AppToolbarItem class-list="border-right me-2">
                 <form class="form-inline" @submit.prevent="addToSelection">
@@ -12,24 +12,30 @@
                 </form>
             </AppToolbarItem>
     
-            <AppToolbarItem>
-                <!-- CREAT ROUTERLINK OPEN MODAL -->
-                <button class="btn btn-outline-secondary ms-2" @click="initGroupModal">Ajout groupé</button>
+            <AppToolbarItem >
+                <router-link :to="{name:'AjoutGroup', params:{id : projet_id}}" custom v-slot="{navigate, href}">
+                    <a :href="href" @click="navigate" class="btn btn-outline-secondary ms-2">
+                        Ajout groupé
+                    </a>
+                </router-link>
             </AppToolbarItem>
 
             <AppToolbarItem>
-                <!-- CREAT ROUTERLINK OPEN MODAL -->
-                <a class="btn btn-primary btn-block layer-full" href="#!ressource/besoins">
-                    <i class="fa fa-plus"></i>
-                    Métiers
-                </a>
+                <router-link :to="{name:'AjoutBesoins', params:{id : projet_id}}" custom v-slot="{navigate, href}">
+                    <a class="btn btn-primary btn-block layer-full" :href="href" @click="navigate">
+                        <i class="fa fa-plus"></i>
+                        Métiers
+                    </a>
+                </router-link>
             </AppToolbarItem>
         </AppToolbar>
 
-        <div class="row">
+        <div class="row" v-if="projet">
             <CalendarTimeline :timeline="timeline" :projet="projet" :pointedCellsObj="pointedCells"/>
         </div>
     </div>
+
+    <router-view :projet="projet"></router-view>
     
 </template>
 
@@ -53,19 +59,29 @@ export default {
             pending: {
                 ajoutGroup: false,
                 projet: false,
+                ressources_rh_type: false
             },
             timeline: {
                 start: null,
                 end: null,
                 now: new Date()
             },
-            projet: [],
-            projet_id: null,
+            projet: null,
             selectionBesoins: null,
+            ressources_rh_type: null,
             pointedCells: {
                 start: [0,0],
                 end: [0,0]
             },
+        }
+    },
+
+    computed: {
+        /**
+         * Get the projet id from url
+         */
+        projet_id() {
+            return this.$route.params.id;
         }
     },
 
@@ -88,6 +104,7 @@ export default {
                 list_besoins_rh: true
             }).then( (data) => {
                 this.projet = data;
+                this.$emit('obj-projet', data);
             }).catch(this.$app.catchError);
 
             this.pending.projet = false;
@@ -146,8 +163,6 @@ export default {
             this.$app.apiPost(urlApi, {
                 query
             }).then((data) => {
-                console.log(data);
-
                 data.forEach(e => {
                     this.updatevalue(e);
                 });
@@ -156,6 +171,8 @@ export default {
                 /** CLOSE MODAL $(#ajoutGroupModal).modal('hide') */
             }).catch(this.$app.catchError);
         },
+
+
     },
 
     mounted(){
@@ -164,8 +181,6 @@ export default {
 
         this.timeline.end = new Date(this.timeline.start);
         this.timeline.end.setDate(this.timeline.start.getDate() + 28);
-
-        this.projet_id = this.$route.params.id;
 
         this.getProjet();
     }
