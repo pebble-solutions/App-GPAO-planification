@@ -1,5 +1,5 @@
 <template>
-    <AppModal title="Configurer les heures de travail" :close-btn="true" :pending="pending.projet" :submit-btn="true" class-list="modal-dialog-scrollable">
+    <AppModal title="Configurer les heures de travail" :cancel-btn="true" :pending="pending.projet" :submit-btn="true" class-list="modal-dialog-scrollable" @modal-hide="backPreviousRoute()" @submit="recordProjet()">
         <div v-if="tmpProjet">
             <table class="table table-borderless">
                 <thead class="thead-dark">
@@ -100,16 +100,76 @@
 import AppModal from '@/components/pebble-ui/AppModal.vue';
 
 export default {
+    props: {
+        projet: Object
+    },
+
     data() {
         return{
             pending:{
                 projet: false
-            }
+            },
+            projetInstance: null
+        }
+    },
+
+    computed: {
+        tmpProjet() {
+            return this.initTmpProje();
         }
     },
 
     components: {
         AppModal
+    },
+
+    methods: {
+        /**
+         * Put back the url route before the modal route
+         */
+        backPreviousRoute() {
+            this.$router.push({name:"Ressources", params:{id: this.projet.id}})
+        },
+
+        /**
+         * Initialise une copy de projet
+         */
+        initTmpProje(){
+            let tmpProjet = {};
+
+            for(let key in this.projet){
+                if(typeof this.projet[key] !== "object")
+                    tmpProjet[key] = this.projet[key];
+            }
+
+            return tmpProjet;
+        },
+
+        /**
+         * recordProjet(props)
+         * Enregistre les valeurs du formulaire de la modification du projet et de l'adresse du projet
+         * Traitement au retour
+         */
+        recordProjet(){
+            this.pending.projet = true;
+
+            let urlApiProjet = "/projet/POST/"+this.projet.id +"/";
+
+
+            this.$app.apiPost(urlApiProjet, this.tmpProjet)
+            .then( (data) => {
+                for(let key in data){
+                    this.projetInstance[key] = data[key];
+                }
+
+                this.pending.projet = false;
+            }).catch(this.$app.catchError);
+        },
+
+    },
+
+    mounted() {
+        this.projetInstance = this.projet
     }
 }
 </script>

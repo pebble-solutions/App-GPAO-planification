@@ -31,11 +31,11 @@
         </AppToolbar>
 
         <div class="row" v-if="projet">
-            <CalendarTimeline :timeline="timeline" :projet="projet" :pointedCellsObj="pointedCells"/>
+            <CalendarTimeline :timeline="timeline" :projet="projet" :pointed-cells-obj="pointedCells" :is-ressources="true"/>
         </div>
     </div>
 
-    <router-view :projet="projet"></router-view>
+    <router-view :projet="projet" :timeline="timeline" @update-timeline="updateTimeline"></router-view>
     
 </template>
 
@@ -54,17 +54,18 @@ import CalendarTimeline from "@/components/CalendarTimeline.vue";
 import '@/js/date.js';
 
 export default {
+    inheritAttrs: false,
+
+    props: {
+        timeline: Object,
+    },
+
     data() {
         return{
             pending: {
                 ajoutGroup: false,
                 projet: false,
                 ressources_rh_type: false
-            },
-            timeline: {
-                start: null,
-                end: null,
-                now: new Date()
             },
             projet: null,
             selectionBesoins: null,
@@ -171,17 +172,25 @@ export default {
                 /** CLOSE MODAL $(#ajoutGroupModal).modal('hide') */
             }).catch(this.$app.catchError);
         },
+        /**
+         * Update timeline from modal with $emit
+         * @param {Object} payload 
+         */
+        updateTimeline(payload) {
+            for(let key in payload) {
+                if(typeof payload[key] !== Date) {
+                    this.tmpTimeline[key] = new Date(payload[key])
+                } else {
+                    this.tmpTimeline[key] = payload[key];
+                }
+            }
 
-
+            this.$emit('update-timeline', this.timeline);
+        }
     },
 
     mounted(){
-        this.timeline.start = new Date();
-        this.timeline.start = this.timeline.start.getMonday();
-
-        this.timeline.end = new Date(this.timeline.start);
-        this.timeline.end.setDate(this.timeline.start.getDate() + 28);
-
+        this.tmpTimeline = this.timeline;
         this.getProjet();
     }
 

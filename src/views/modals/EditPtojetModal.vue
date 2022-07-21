@@ -1,5 +1,5 @@
 <template>
-    <AppModal title="Modifier le projet" :pending="pending.projet" :cancel-btn="true" :submit-btn="true" class-list="modal-lg" @submit="recordProjet()">
+    <AppModal title="Modifier le projet" :pending="pending.projet" :cancel-btn="true" :submit-btn="true" size="lg" @submit="recordProjet()" @modal-hide="backPreviousRoute()">
         <div v-if="tmpProjet" class="d-flex">
             <div class="flex-fill">
                 <div class="mb-3">
@@ -12,13 +12,13 @@
                     <textarea class="form-control" v-model="tmpProjet.description" id="projet_desc"></textarea>
                 </div>
         
-                <div class="form-row">
-                    <div class="mb-3 col-6">
+                <div class="row mb-3">
+                    <div class="col">
                         <label for="projet_ddp" class="form-label">Date de début</label>
                         <input type="date" class="form-control" v-model="tmpProjet.ddp" id="projet_ddp">
                     </div>
         
-                    <div class="mb-3 col-6">
+                    <div class="col">
                         <label for="projet_dfp" class="form-label">Date de fin</label>
                         <input type="date" class="form-control" v-model="tmpProjet.dfp" id="projet_dfp">
                     </div>
@@ -29,14 +29,14 @@
                     <input type="text" class="form-control" v-model="tmpProjet.oAdresse.voie" id="projet_adresse_voie">
                 </div>
         
-                <div class="form-row">
-                    <div class="mb-3 col-4">
-                        <label for="projet_adresse_cp" class="form-label">Code postal</label>
+                <div class="row">
+                    <div class="col">
+                        <label for="projet_adresse_cp" class="col-form-label">Code postal</label>
                         <input type="text" class="form-control" v-model="tmpProjet.oAdresse.cp" id="projet_adresse_cp">
                     </div>
     
-                    <div class="mb-3 col-8">
-                        <label for="projet_adresse_ville" class="form-label">Ville</label>
+                    <div class="col">
+                        <label for="projet_adresse_ville" class="col-form-label">Ville</label>
                         <input type="text" class="form-control" v-model="tmpProjet.oAdresse.localite" id="projet_adresse_ville">
                     </div>
                 </div>
@@ -65,7 +65,7 @@ export default {
 
     computed: {
         tmpProjet() {
-            return this.initTmpProje();
+            return this.initTmpProjet();
         }
     },
 
@@ -111,7 +111,7 @@ export default {
          /**
          * Initialise une copy de projet
          */
-        initTmpProje(){
+        initTmpProjet(){
             let tmpProjet = {};
             tmpProjet.oAdresse = {};
 
@@ -124,7 +124,16 @@ export default {
                 if(typeof this.projet.oAdresse[key] !== "object")
                     tmpProjet.oAdresse[key] = this.projet.oAdresse[key];
             }
+
+            return tmpProjet;
         },
+        
+        /**
+         * Put back the url route before the modal route
+         */
+        backPreviousRoute() {
+            this.$router.push({name:"Ressources", params:{id: this.projet.id}});
+        }
     },
 
     mounted() {

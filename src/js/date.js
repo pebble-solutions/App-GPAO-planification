@@ -75,3 +75,111 @@ Date.prototype.getSqlDate = function(time) {
 
 	return date;
 };
+
+Date.dayFrDict = ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'];
+Date.monthFrDict = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
+Date.listDays = function(dateStart, dateEnd) {
+	let days = [];
+	
+	if (dateEnd) {
+		let start = dateStart;
+		let end = dateEnd;
+
+		let diff_time = end.getTime() - start.getTime();
+		let diff_days = Math.round(diff_time / (1000 * 3600* 24));
+
+		for (let index = 0; index <= diff_days; index++) {
+			let current = new Date(start);
+			current.setDate(start.getDate() + index);
+
+			days.push(current);
+		}
+	}
+
+	return days;
+};
+
+Date.listWeeks = function(dateStart, dateEnd) {
+	let weeks = [];
+
+	let days = Date.listDays(dateStart, dateEnd);
+
+	let n = 0;
+	let start = null;
+	let last = null;
+
+	days.forEach((day) => {
+
+		n += 1;
+
+		if (!start) {
+			start = day;
+		}
+
+		if (day.getDay() === 0 && last) {
+
+			weeks.push({
+				n,
+				start,
+				week: start.getWeek()
+			});
+
+			start = null;
+			n = 0;
+		}
+
+		last = day;
+	});
+
+	if (start) {
+		weeks.push({
+			n,
+			start,
+			week: start.getWeek()
+		});
+	}
+
+	return weeks;
+};
+
+Date.listMonths = function(dateStart, dateEnd) {
+	let months = [];
+
+	let days = Date.listDays(dateStart, dateEnd);
+
+	let n = 0;
+	let start = null;
+	let last = null;
+
+	days.forEach((day) => {
+		if (!start) {
+			start = day;
+		}
+
+		if (day.getDate() === 1 && last) {
+			months.push({
+				n,
+				start,
+				month: Date.monthFrDict[start.getMonth()]
+			});
+
+			n = 0;
+			start = null;
+		}
+
+		last = day;
+
+		n += 1;
+	});
+
+	if (start) {
+		months.push({
+			n,
+			start,
+			month: Date.monthFrDict[start.getMonth()]
+		});
+	}
+
+	return months;
+};

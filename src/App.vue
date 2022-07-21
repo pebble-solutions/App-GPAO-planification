@@ -30,20 +30,29 @@
 
 			<div class="d-flex align-items-center" v-if="isAffectation">
 
-                <div class="mx-2 border-secondary">
-                    <a href="#!affectation/projects" class="btn btn-secondary"><i class="fas fa-project-diagram"></i> {{projetLabel}}</a>
-                </div>
+                <router-link :to="{name:'AddProjets'}" custom v-slot="{navigate, href}">
+                    <a :href="href" class="btn btn-secondary mx-2" @click="navigate">
+						<i class="bi bi-diagram-2-fill"></i> 
+						{{projetsList.length}} Projet<span v-if="projetsList.length > 1">s</span>
+					</a>
+                </router-link>
 
-                <div class="mx-2">
-                    <a href="#!affectation/metiers" class="btn btn-secondary"><i class="fas fa-briefcase"></i> {{metierLabel}}</a>
-                </div>
+                <router-link :to="{name:'AddMetiers'}" custom v-slot="{navigate, href}">
+                    <a :href="href" class="btn btn-secondary mx-2" @click="navigate">
+						<i class="bi bi-briefcase"></i>
+						{{metiersList.length}} Metier<span v-if="metiersList.length > 1">s</span>
+					</a>
+                </router-link>
                 
-                <div class="mx-2">
-                    <a href="#!affectation/date" class="btn btn-secondary"><i class="fas fa-calendar-alt"></i> {{getDateHuman(timeline.start)}} <i class="fas fa-arrow-right"></i> {{getDateHuman(timeline.end)}}</a>
-                </div>
+				<router-link :to="{name:'EditTimelineAffectation'}" custom v-slot="{navigate, href}">
+					<a :href="href" @click="navigate" class="btn btn-secondary mx-2">
+						<i class="bi bi-calendar3"></i> 
+						{{getDateHuman(timeline.start)}} <i class="bi bi-chevron-compact-right"></i> {{getDateHuman(timeline.end)}}
+					</a>
+				</router-link>
 
                 <div class="mx-2">
-                    <a href="#!affectation/partager" class="btn btn-primary"><i class="fas fa-share-square"></i> Partager</a>
+                    <a href="#!affectation/partager" class="btn btn-primary"><i class="bi bi-box-arrow-up-right"></i> Partager</a>
                 </div>
             </div>
 
@@ -60,14 +69,12 @@
 		</template>
 
 		<template v-slot:list>
-			<AppMenu>
-				<!-- <AppMenuItem :href="'/element/'+el.id" icon="bi bi-file-earmark" v-for="el in elements" :key="el.id">{{el.name}}</AppMenuItem> -->
-			</AppMenu>
+			<SideBarAffectation v-if="isAffectation"></SideBarAffectation>
 		</template>
 
 		<template v-slot:core>
 			<div class="px-2 bg-light">
-				<router-view :cfg="cfg" v-if="isConnectedUser" @obj-projet="updateProjet"/>
+				<router-view v-if="isConnectedUser" :cfg="cfg" :timeline="timeline" :projets-list="projetsList" :metiers-list="metiersList" @obj-projet="updateProjet" @update-timeline="updateTimeline" />
 			</div>
 		</template>
 
@@ -80,6 +87,7 @@
 import AppWrapper from '@/components/pebble-ui/AppWrapper.vue'
 import AppMenu from '@/components/pebble-ui/AppMenu.vue'
 import AppMenuItem from '@/components/pebble-ui/AppMenuItem.vue'
+import SideBarAffectation from '@/components/SideBarAffectation.vue'
 // import { mapActions, mapState } from 'vuex'
 
 import CONFIG from "@/config.json"
@@ -101,8 +109,11 @@ export default {
 			projet:null,
 			timeline: {
 				start:null,
-				end:null
+				end:null,
+				now: new Date()
 			},
+			projetsList: [],
+			metiersList: []
 		}
 	},
 
@@ -123,7 +134,11 @@ export default {
 		},
 
 		isAffectation() {
-			if(this.$route.name === 'Affectations') {
+			if( this.$route.name === 'Affectations' ||
+				this.$route.name === 'EditTimelineAffectation' ||
+				this.$route.name === 'AddProjets' ||
+				this.$route.name === 'AddMetiers')
+			{
 				return true;
 			}
 
@@ -199,15 +214,23 @@ export default {
 		 * @param {Objet} projet
 		 */
 		updateProjet(projet) {
-			console.log(projet);
 			this.projet = projet;
+		},
+
+		/**
+		 * Get object timeline from $emit and update this.timeline
+		 * @param {Object} timeline 
+		 */
+		updateTimeline(timeline) {
+			this.timeline = timeline;
 		}
 	},
 
 	components: {
 		AppWrapper,
 		AppMenu,
-		AppMenuItem
+		AppMenuItem,
+		SideBarAffectation
 	},
 
 	mounted() {

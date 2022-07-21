@@ -31,7 +31,7 @@ const routes = [
       {
         path: '/ressources/:id/edittimeline',
         name: 'EditTimeline',
-        component: () => import('../views/modals/EditTimeline.vue')
+        component: () => import('../views/modals/EditTimelineModal.vue')
       },
       {
         path: '/ressources/:id/ajoutbesoins',
@@ -45,7 +45,24 @@ const routes = [
   {
     path: '/affectations',
     name: 'Affectations',
-    component: () => import('../views/Affectations.vue')
+    component: () => import('../views/Affectations.vue'),
+    children: [
+      {
+        path: '/affectations/edittimeline',
+        name: 'EditTimelineAffectation',
+        component: () => import('../views/modals/EditTimelineModal.vue')
+      },
+      {
+        path: '/affectations/addprojets',
+        name: 'AddProjets',
+        component: () => import('../views/modals/AddProjetsModal.vue')
+      },
+      {
+        path: '/affectations/addMetiers',
+        name: 'AddMetiers',
+        component: () => import('../views/modals/AddMetiersModal.vue')
+      }
+    ]
   },
   
   {
