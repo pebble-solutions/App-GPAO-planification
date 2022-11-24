@@ -28,7 +28,6 @@
                                 <input :id="besoin.nom + '-a'" type="checkbox" class="custom-control-input" v-model="besoin.a">
                                 <label class="custom-control-label" :for="besoin.nom + '-a'"></label>
                             </div>
-
                         </td>
 
                         <td>
@@ -54,35 +53,44 @@
 
 <script>
 import AppModal from '@/components/pebble-ui/AppModal.vue';
+import { mapActions, mapState } from 'vuex';
 
 export default {
-    props: {
-        projet: Object,
-    },
-
     data() {
         return {
             pending: {
                 ressources_rh_type: false
-            },
-            projetInstance: null,
-            ressources_rh_type:null,
-            besoins: [],
-            tmpProjet: null
+            }
         }
     },
 
-    // computed: {
-    //     tmpProjet() {
-    //         return this.initTmpProjet();
-    //     }
-    // },
+    computed: {
+        ...mapState(['projet', 'ressourcesRHType']),
+
+        // projetInstance() {
+        //     return this.projet;
+        // },
+
+        tmpProjet() {
+            return this.initTmpProjet();
+        },
+
+        besoins() {
+            if (this.ressourcesRHType) {
+                return this.initBesoinsModal();
+            }
+
+            return null;
+        }
+    },
 
     components: {
         AppModal
     },
 
     methods: {
+        ...mapActions(['refreshRessourcesRHType', 'refreshProjet']),
+
          /**
          * Enregistre les valeurs du formulaire de la modification besoins sur la journée des métier ('matin', 'apres-midi', 'journée', 'nuit')
          * Traitement au retour
@@ -100,32 +108,28 @@ export default {
             query.periode_nuit_hd = this.tmpProjet.periode_nuit_hd;
             query.periode_nuit_duree = this.tmpProjet.periode_nuit_duree;
 
-            query.besoins_rh = JSON.stringify(this.tmpBesoins);
+            query.besoins_rh = JSON.stringify(this.besoins);
 
             let urlApi = "/projet/POST/"+this.projet.id +"/define_besoins_rh?list_besoins_rh=1";
 
             this.$app.apiPost(urlApi, query)
             .then( (data) => {
-                console.log('result !!!!!!', data);
-                for(let key in data){
-                    this.projetInstance[key] = data[key];
-                    //this.$emit('update-projet', data);
+                this.refreshProjet(data);
 
-                    this.pending.ressources_rh_type = false;
-                    this.backPreviousRoute();
-                }
+                this.pending.ressources_rh_type = false;
+                this.backPreviousRoute();
             }).catch(this.$app.catchError);
         },
 
         /**
-         * On initialise dans un tableau (array, $tmpBesoins) temporaire les objects qui contient les valeurs qu'on veux afficher
+         * On initialise dans un tableau (array, $besoins) temporaire les objects qui contient les valeurs qu'on veux afficher
          * 
          * À la fin de l'initialisation la boite modale est appelée.
          */
         initBesoinsModal() {
-            this.besoins = [];
+            let besoins = [];
 
-            this.ressources_rh_type.forEach(e => {
+            this.ressourcesRHType.forEach(e => {
                 let codes = ['m', 'a', 'j', 'n'];
                 let found = {};
 
@@ -133,7 +137,7 @@ export default {
                     found[c] = this.projet.besoins_rh.find(brh => brh.periode_code == c.toUpperCase() && brh.oType.id == e.id);
                 });
 
-                this.besoins.push({
+                besoins.push({
                     ressources__rh_type_id: e.id,
                     nom: e.nom,
                     m: found.m ? true : false,
@@ -144,52 +148,56 @@ export default {
             });    
 
             this.initTmpProjet();
+            
+            return besoins;
         },
 
         /**
          * Initialise une copy de projet
          */
-        initTmpProjet(){
-            this.tmpProjet = {};
-            this.tmpProjet.oAdresse = {};
+        initTmpProjet() {
+            let projet = {};
+            projet.oAdresse = {};
 
-            for(let key in this.projet){
+            for (let key in this.projet) {
                 if(typeof this.projet[key] !== "object")
-                    this.tmpProjet[key] = this.projet[key];
+                    projet[key] = this.projet[key];
             }
 
-            for(let key in this.projet.oAdresse){
+            for (let key in this.projet.oAdresse) {
                 if(typeof this.projet.oAdresse[key] !== "object")
-                    this.tmpProjet.oAdresse[key] = this.projet.oAdresse[key];
+                    projet.oAdresse[key] = this.projet.oAdresse[key];
             }
+            
+            return projet;
         },
 
+        /**
+         * Récupère une liste de ressources rh type et l'enregistre dans le store
+         */
         getRessourcesRHType() {
             let urlApi = "/ressourcesRHType/GET/list";
 
             this.$app.apiGet(urlApi)
             .then((data) => {
-                this.ressources_rh_type = data;
-
-                this.initBesoinsModal();
+                this.refreshRessourcesRHType(data);
 
                 this.pending.ressources_rh_type=false;
             }).catch(this.$app.catchError);
-
-            /**COMLPLIQUER A METTRE EN PLACE */
-            // readHash();
         },
 
+        /**
+         * Retourne a la page précédente
+         */
         backPreviousRoute() {
             this.$router.push({name:"Ressources", params:{id: this.projet.id}})
         }
     },
 
     mounted() {
-        this.projetInstance = this.projet;
-        this.getRessourcesRHType();
-
-        console.log(this.besoins);
+        if (!this.ressourcesRHType) {
+            this.getRessourcesRHType();
+        }
     }
 }
 </script>

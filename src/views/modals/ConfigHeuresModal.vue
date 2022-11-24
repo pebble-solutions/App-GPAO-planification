@@ -98,32 +98,29 @@
 
 <script>
 import AppModal from '@/components/pebble-ui/AppModal.vue';
+import { mapActions, mapState } from 'vuex';
 
 export default {
-    props: {
-        projet: Object
-    },
-
     data() {
         return{
             pending:{
                 projet: false
-            },
-            projetInstance: null
+            }
         }
     },
 
     computed: {
+        ...mapState(['projet']),
+        
         tmpProjet() {
             return this.initTmpProje();
         }
     },
 
-    components: {
-        AppModal
-    },
+    components: {AppModal},
 
     methods: {
+        ...mapActions(['refreshProjet']),
         /**
          * Put back the url route before the modal route
          */
@@ -155,21 +152,15 @@ export default {
 
             let urlApiProjet = "/projet/POST/"+this.projet.id +"/";
 
-
             this.$app.apiPost(urlApiProjet, this.tmpProjet)
             .then( (data) => {
-                for(let key in data){
-                    this.projetInstance[key] = data[key];
-                }
+                this.refreshProjet(data);
 
                 this.pending.projet = false;
+                this.backPreviousRoute();
             }).catch(this.$app.catchError);
         },
 
-    },
-
-    mounted() {
-        this.projetInstance = this.projet
     }
 }
 </script>

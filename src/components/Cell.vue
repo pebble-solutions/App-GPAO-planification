@@ -1,11 +1,12 @@
 <template>
     <div class="planning-cell-comp">
         <div v-if="edit" class="w-100 h-100">
-            <input ref="valueinput" type="number" v-model="activevalue" @keyup.enter="record" @blur="record" @keyup.esc="edit=!edit" class="w-100 h-100">
+            <input ref="valueinput" type="number" v-model="activevalue" @keyup.enter="record('key')" @blur="record('blur')" @keyup.esc="edit = !edit" class="w-100 h-100">
         </div>
+
         <span v-else 
-            @click="edit=!edit" 
-            @keyup="edit=!edit" 
+            @click="edit = !edit" 
+            @keyup="edit = !edit" 
             @mousedown="$emit('point-cell-start')" 
             @mouseup="$emit('point-cell-end')" 
             @mouseover="$emit('point-cell-over')"
@@ -60,6 +61,7 @@
 </style>
 
 <script>
+import { mapActions, mapState } from 'vuex';
 
 export default {
     props:{
@@ -68,7 +70,6 @@ export default {
         j: Number,
         metier: Object,
         jour: Date,
-        projet_id: Number,
         selected: Boolean
     },
 
@@ -76,14 +77,18 @@ export default {
         return {
             edit: false,
             activevalue: null,
-            recordedvalue: null
+            recordedvalue: null,
+            blur: 0
         }
     },
 
     computed: {
+        ...mapState(['projet']),
+
         /**
          * Retourne la liste des classes CSS à appliquer à la cellule en fonction du contexte (sélectionnée/non, week-end...)
-         * @returns {String}
+         * 
+         * @returns {string}
          */
         className() {
             let classList = '';
@@ -92,13 +97,26 @@ export default {
                 classList += ' selected ';
             }
 
-            if (this.jour.getDay() === 6 || this.jour.getDay() === 0) {
+            if (6 === this.jour.getDay() || 0 === this.jour.getDay()) {
                 classList += ' bg-weekend ';
             } else {
                 classList += ' bg-light ';
             }
 
             return classList;
+        },
+
+        /**
+         * Récupère le projet id en fonction du projet chargé dans le storage-modal
+         * 
+         * @return  {?number}
+         */
+        projet_id() {
+            if (this.projet) {
+                return this.projet.id;
+            } 
+
+            return null;
         }
     },
 
@@ -106,7 +124,8 @@ export default {
         /**
          * Lors d'une modification de la proriété externe value, recordedvalue et activevalue
          * sont ré-affectées.
-         * @param {Float} val
+         * 
+         * @param {number} val
          */
         value(val) {
             this.recordedvalue = val;
@@ -115,35 +134,35 @@ export default {
     },
 
     methods:{
+        ...mapActions(['refreshRessourcesBesoin']),
+
         /**
          * Action déclenchée lors de l'enregistrement d'une cellule.
          * 
          * @emit recorded           Événement envoyé lorsque l'enregistrement est terminée
          */
-        record(){
-            if(this.recordedvalue != this.activevalue)
-            {
+        record() {
+            if (this.recordedvalue != this.activevalue) {
                 this.$refs.valueinput.disabled = true;
-                let urlApi = '/ressourcesBesoin/POST/findOrCreate';
 
-                console.log('activevalue', this.activevalue);
-                console.log('projet id', this.projet_id);
-                console.log('metier id', this.metier.id);
-                console.log('jour', this.jour.getSqlDate());
+                let newRessourcesBesoin = [];
+
+                let urlApi = '/ressourcesBesoin/POST/findOrCreate';
 
                 this.$app.apiPost(urlApi, {
                     nb: this.activevalue,
                     projet_id: this.projet_id,
-                    projet__liaison_besoins_rh_id: this.metier.id,
+                    projet__liaison_besoin_rh_id: this.metier.id,
                     dd: this.jour.getSqlDate()
                 }).then( (data) => {
-                    console.log(data);
-                    this.edit=false;
+                    this.edit = false;
                     this.activevalue = data.nb;
-                    this.$emit("recorded", {i:this.i, j:this.j, data:data});
 
+                    newRessourcesBesoin['action'] = "update";
+                    newRessourcesBesoin['data'] = [data];
 
-                }).catch((error) => {
+                    this.refreshRessourcesBesoin(newRessourcesBesoin);
+                }).catch( (error) => {
                     console.log(error);
                     this.$refs.valueinput.classList.add("bg-warning");
                     this.$refs.valueinput.disabled = false;
@@ -157,7 +176,7 @@ export default {
     },
 
     updated() {
-        if(this.edit) {
+        if (this.edit) {
             this.$refs.valueinput.focus();
         }
     },

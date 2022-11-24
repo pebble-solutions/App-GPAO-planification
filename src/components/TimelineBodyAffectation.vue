@@ -92,15 +92,12 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
-    inheritAttrs: false,
-
-    props: {
-        projetsList: Array,
-        metiersList: Array
-    },
-
     computed: {
+        ...mapState(['timeline']),
+        
         /**
          * Retourne la liste des dates (objet Date) start et end.
          * @returns {Array}

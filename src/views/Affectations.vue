@@ -1,28 +1,35 @@
 <template>
     <div class="col overflow-auto">
-        <div class="row no-gutters">
-            <CalendarTimeline :is-affectation="true" :timeline="timeline" :projets-list="projetsList" :metiers-list="metiersList"></CalendarTimeline>
+        <div class="row no-gutters" v-if="projetList.lenght > 0">
+            <CalendarTimeline :is-affectation="true"></CalendarTimeline>
+        </div>
+        
+        <div v-else class="py-3 lead text-secondary text-center">
+            <div>
+                <i class="bi bi-file-x"></i>
+            </div>
+            
+            <div>Pas de projet(s) séléctionné(s)</div>
         </div>
     </div>
 
-    <router-view :timeline="timeline" :projets-list="projetsList"></router-view>
+    <router-view></router-view>
 </template>
 
 
 <script>
 import CalendarTimeline from "@/components/CalendarTimeline.vue";
+//import AlertMessage from "@/components/pebble-ui/AlertMessage.vue"
+
+import { mapState } from 'vuex';
 
 export default {
     inheritAttrs: false,
-
-    props: {
-        timeline: Object,
-        projetsList: Array,
-        metiersList: Array
+    
+    computed: {
+        ...mapState(['projetList'])
     },
 
-    components: {
-       CalendarTimeline
-    }
+    components: {CalendarTimeline},
 }
 </script>

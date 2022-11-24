@@ -34,6 +34,7 @@
                     <i class="bi bi-check text-warning" v-else-if="projets_add.find(e => e.id == projet.id)" title="Sera ajouté à la vue"></i>
                     <i class="bi bi-check text-success" v-else-if="projets_id.find(e => e == projet.id)" title="Déjà chargé"></i>
                 </div>
+                
                 <div>
                     {{projet.intitule}}
                     <div class="text-secondary"><i class="fas fa-calendar"></i> {{projet.ddp}} <i class="fas fa-chevron-right"></i> {{projet.dfp}}</div>
@@ -48,12 +49,9 @@ import AppModal from '@/components/pebble-ui/AppModal.vue';
 import Spinner from '../../components/pebble-ui/Spinner.vue';
 import AlertMessage from '../../components/pebble-ui/AlertMessage.vue';
 
-export default {
-    props: {
-        projetList: Array,
-        timeline: Object,
-    },
+import { mapState } from 'vuex';
 
+export default {
     data() {
         return {
             pending: {
@@ -66,23 +64,16 @@ export default {
             list_projets: [],
             projets_add: [],
             projets_remove: [],
+            projets_id : [],
         }
     },
 
-    components: {
-        AppModal,
-        Spinner,
-        AlertMessage
+    computed: {
+        ...mapState(['timeline'])
     },
 
-    computed: {
-        projets_id() {
-            if(this.projet_id) {
-                return this.projet_id.split(',');
-            }
-            return [];
-        },
-    },
+    components: {AppModal, Spinner, AlertMessage},
+
 
     methods: {
         /**
@@ -100,8 +91,6 @@ export default {
             }).then((data) => {
                 this.list_projets = data;
 
-                console.log('result', this.list_projets);
-
                 this.pending.searchProjets = false;
             }).catch(this.$app.catchError);
         },
@@ -114,7 +103,7 @@ export default {
         toggleSelection(obj) {
             let i_rm = this.projets_remove.findIndex(e => e.id == obj.id);
             let i_add = this.projets_add.findIndex(e => e.id == obj.id);
-            /**VOIR POUR USE GUARD CLAUSE */
+
             if (this.projets_id.find(e => e == obj.id)) {
                 if (i_rm === -1) {
                     this.projets_remove.push(obj);
@@ -153,99 +142,92 @@ export default {
          * ..._add sur ..._id. Lance la recherche.
          */
         confirmFilter() {
-            let ids = this.projet_id.split(',');
-
             this.projets_remove.forEach((obj) => {
-                let i = ids.findIndex(e => e == obj.id);
+                let i = this.projets_id.findIndex(e => e == obj.id);
 
                 if(i !== -1) {
-                    ids.splice(i, 1);
+                    this.projets_id.splice(i, 1);
                 }
             });
 
             this.projets_add.forEach((obj) => {
-                let i =ids.findIndex(e => e == obj.id);
+                let i =this.projets_id.findIndex(e => e == obj.id);
 
                 if(i === -1) {
-                    ids.push(obj.id);
+                    this.projets_id.push(obj.id);
                 }
             });
 
             this.projets_remove = [];
             this.projets_add = [];
-
-            this.projet_id = ids.join(',');
             
-            this.filterOptions();
+            this.$emit('update-projets-list', this.projets_id);
+            this.backPreviousRoute();
+
+            //this.filterOptions();
         },
 
         filterOptions(){
-            let newIds=[];
-            let escapeApi = false;
-            let ids = this.projet_id.split(',');
-            let query = {
-                list_besoins_rh : true
-            };
+            console.log('test projets i, filter', this.projets_id);
+            console.log('list de tt les prokjet', this.list_projets);
+            // let newIds=[];
+            // let escapeApi = false;
+            // let ids = this.projets_id;
+            // //let ids = this.projets_id.split(',');
+            // let query = {
+            //     list_besoins_rh : true
+            // };
 
-            let datas = this.list_projets;
+            // let datas = this.list_projets;
 
-            ids.forEach((fid) => {
-                if(!datas.find(e => e.id == fid) && fid != ""){
-                    newIds.push(fid);
-                }
-            });
+            // ids.forEach((fid) => {
+            //     if(!datas.find(e => e.id == fid) && fid != ""){
+            //         newIds.push(fid);
+            //     }
+            // });
 
-            let removeIds = [];
+            // let removeIds = [];
 
-            datas.forEach((e) => {
-                let found = ids.find(id => id == e.id);
+            // datas.forEach((e) => {
+            //     let found = ids.find(id => id == e.id);
 
-                if(!found) {
-                    removeIds.push(e.id);
-                }
-            });
+            //     if(!found) {
+            //         removeIds.push(e.id);
+            //     }
+            // });
 
-            removeIds.forEach((id) => {
-                let i = datas.findIndex(e => e.id == id);
+            // removeIds.forEach((id) => {
+            //     let i = datas.findIndex(e => e.id == id);
 
-                datas.splice(i,1);
-            });
+            //     datas.splice(i,1);
+            // });
 
-            this.list_projets = datas;
+            // this.list_projets = datas;
 
-            if(removeIds.length > 0 && newIds.length == 0) {
-                escapeApi = true;
-            } else {
-                query.id = newIds;
-                query.id_query = "and";
-            }
+            // if(removeIds.length > 0 && newIds.length == 0) {
+            //     escapeApi = true;
+            // } else {
+            //     query.id = newIds;
+            //     query.id_query = "and";
+            // }
 
-            if(!escapeApi) {
-                console.log('api');
-                // MKGGet.queue.push({
-                //     url: '/api/projet/GET/list/',
-                //     query: query,
-                //     self:this,
-                //     callback(resp, self) {
-                //         if (resp.status === 'OK') {
-                //             resp.data.forEach((p) => {
-                //                 self.projets.push(p);
-                //             });
+            // if(!escapeApi) {
+            //     console.log('list des projet select', this.projets_id);
+            //     this.searchProjets();
+            //     this.backPreviousRoute();
+            // }
+        }
+    },
 
-                //             APP.closeAllModals();
-                //         }
-                //         else {
-                //             alert('Erreur : '+resp.message);
-                //             console.error(resp);
-                //         }
-                //         self.pending.projets = false;
-                //     }
-                // });
-            }
+    beforeMount() {
+        if(typeof this.projetList !== 'undefined') {
+            console.log('totoaopt');
+            this.projets_id = this.projetList;
         }
     },
 
     mounted() {
+        console.log(this.projetList);
         this.searchProjets();
     }
 }

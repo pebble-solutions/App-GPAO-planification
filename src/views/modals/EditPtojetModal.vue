@@ -47,65 +47,67 @@
 
 <script>
 import AppModal from '@/components/pebble-ui/AppModal.vue';
+import { mapActions, mapState } from 'vuex';
 
 export default {
-    props: {
-        projet: Object,
-    },
-
     data() {
         return {
             pending: {
                 projet: false,
                 adresse: false
-            },
-            projetInstance: null
+            }
         }
     },
 
     computed: {
+        ...mapState(['projet']),
+
+        /**
+         * instance une copy du projet
+         */
         tmpProjet() {
             return this.initTmpProjet();
         }
     },
 
-    components: {
-        AppModal
-    },
+    components: {AppModal},
 
     methods: {
+        ...mapActions(['refreshProjet']),
+
         /**
-         * recordProjet(props)
-         * Enregistre les valeurs du formulaire de la modification du projet et de l'adresse du projet
-         * Traitement au retour
+         * Enregistre les valeurs du formulaire de la modification du projet et au retour envi le projet a la methode updateOAdresseFromProjet
          */
         recordProjet(){
             this.pending.projet = true;
             this.pending.adresse = true;
 
             let urlApiProjet = "/projet/POST/"+this.projet.id +"/";
-            let urlApiAdresse = "/adresse/POST/"+this.projet.oAdresse.id;
-
 
             this.$app.apiPost(urlApiProjet, this.tmpProjet)
             .then( (data) => {
-                for(let key in data){
-                    this.projetInstance[key] = data[key];
-                }
+                this.updateOAdresseFromProjet(data);
 
                 this.pending.projet = false;
             }).catch(this.$app.catchError);
+        },
 
+        /**
+         * Récupere les information de l'adresse du projet et Met a jour dans le store le projet
+         * 
+         * @param {Object} newProjet object projet return par l'api
+         */
+        updateOAdresseFromProjet(newProjet) {
+            let urlApiAdresse = "/adresse/POST/"+this.projet.oAdresse.id;
 
             this.$app.apiPost(urlApiAdresse, this.tmpProjet.oAdresse)
             .then( (data) => {
-                for(let key in data){
-                    this.projetInstance.oAdresse[key] = data[key]; 
-                }
+                newProjet.oAdresse = data;
+                this.refreshProjet(newProjet);
+
+                this.pending.adresse = false;
+                this.backPreviousRoute();
             }) .catch(this.$app.catchError);
-
-
-            self.pending.adresse = false;
         },
 
          /**
@@ -134,10 +136,6 @@ export default {
         backPreviousRoute() {
             this.$router.push({name:"Ressources", params:{id: this.projet.id}});
         }
-    },
-
-    mounted() {
-        this.projetInstance = this.projet
     }
 }
 </script>

@@ -9,27 +9,39 @@
 		@structure-change="switchStructure">
 
 		<template v-slot:header>
-			<div class="d-flex align-items-center" v-if="isRessources && projet">
-				<router-link :to="{name:'EditProjet', params:{id:'419'}}" custom v-slot="{navigate, href}">
-					<a :href="href" @click="navigate" class="btn btn-dark mx-2">{{projet.intitule}} <i class="bi bi-pencil-fill"></i></a>
+			<div v-if="isRessources || isAffectation" class="ùs-2">
+				<router-link :to="{name: 'RessourcesAjoutProjet'}" custom v-slot="{navigate, href}">
+					<a :href="href" @click="navigate" class="btn btn-dark">
+						<i class="bi bi-people-fill me-1" :class="{'text-warning': projet}"></i>
+						<span v-if="projet" class="text-warning">Projet sélectionné</span>
+						<span v-else>Sélectionner un projet</span>
+					</a>
 				</router-link>
+			</div>
 
-				<router-link :to="{name:'ConfigHeures', params:{id:'419'}}" custom v-slot="{navigate, href}">
-					<a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-clock-fill"></i> Heure de travail</a>
-				</router-link>
-				
-				<router-link :to="{name:'Affectations'}" custom v-slot="{navigate, href}">
-					<a :href="href" @click="navigate" class="btn btn-primary mx-2"><i class="bi bi-person-check-fill"></i> Affecter du personnel</a>
-				</router-link>
+			<div class="d-flex align-items-center" v-if="isRessources">
 
-				<router-link :to="{name:'EditTimeline', params:{id:'419'}}" custom v-slot="{navigate, href}">
-					<a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-calendar3"></i> {{getDateHuman(timeline.start)}} <i class="bi bi-chevron-compact-right"></i> {{getDateHuman(timeline.end)}}</a>
-				</router-link>
+				<div v-if="projet">
+					<router-link :to="{name:'EditProjet', params:{id:'419'}}" custom v-slot="{navigate, href}">
+						<a :href="href" @click="navigate" class="btn btn-dark mx-2">{{projet.intitule}} <i class="bi bi-pencil-fill"></i></a>
+					</router-link>
+	
+					<router-link :to="{name:'ConfigHeures', params:{id:'419'}}" custom v-slot="{navigate, href}">
+						<a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-clock-fill"></i> Heure de travail</a>
+					</router-link>
+					
+					<router-link :to="{name:'Affectations'}" custom v-slot="{navigate, href}">
+						<a :href="href" @click="navigate" class="btn btn-primary mx-2"><i class="bi bi-person-check-fill"></i> Affecter du personnel</a>
+					</router-link>
+	
+					<router-link :to="{name:'EditTimeline', params:{id:'419'}}" custom v-slot="{navigate, href}">
+						<a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-calendar3"></i> {{getDateHuman(timeline.start)}} <i class="bi bi-chevron-compact-right"></i> {{getDateHuman(timeline.end)}}</a>
+					</router-link>
+				</div>
 			</div>
 
 
 			<div class="d-flex align-items-center" v-if="isAffectation">
-
                 <router-link :to="{name:'AddProjets'}" custom v-slot="{navigate, href}">
                     <a :href="href" class="btn btn-secondary mx-2" @click="navigate">
 						<i class="bi bi-diagram-2-fill"></i> 
@@ -62,7 +74,7 @@
 		<template v-slot:menu>
 			<AppMenu>
 				<AppMenuItem href="/" look="dark" icon="bi bi-house">Accueil</AppMenuItem>
-				<AppMenuItem href="/ressources/419" look="dark" icon="bi bi-boxes">Ressources</AppMenuItem>
+				<AppMenuItem href="/ressources" look="dark" icon="bi bi-boxes">Ressources</AppMenuItem>
 				<AppMenuItem href="/affectations" look="dark" icon="bi bi-person-plus-fill">Affectations</AppMenuItem>
 				<AppMenuItem href="/planning" look="dark" icon="bi bi-calendar2">Planning</AppMenuItem>
 			</AppMenu>
@@ -74,13 +86,19 @@
 
 		<template v-slot:core>
 			<div class="px-2 bg-light">
-				<router-view v-if="isConnectedUser" :cfg="cfg" :timeline="timeline" :projets-list="projetsList" :metiers-list="metiersList" @obj-projet="updateProjet" @update-timeline="updateTimeline" />
+				<router-view v-if="isConnectedUser" :cfg="cfg" />
 			</div>
 		</template>
 
 	</AppWrapper>
-	
 </template>
+
+<style lang="scss">
+.lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+}
+</style>
 
 <script>
 
@@ -88,7 +106,7 @@ import AppWrapper from '@/components/pebble-ui/AppWrapper.vue'
 import AppMenu from '@/components/pebble-ui/AppMenu.vue'
 import AppMenuItem from '@/components/pebble-ui/AppMenuItem.vue'
 import SideBarAffectation from '@/components/SideBarAffectation.vue'
-// import { mapActions, mapState } from 'vuex'
+import {mapActions, mapState } from 'vuex'
 
 import CONFIG from "@/config.json"
 import '@/js/date.js'
@@ -96,7 +114,6 @@ import '@/js/date.js'
 
 
 export default {
-
 	data() {
 		return {
 			cfg: CONFIG.cfg,
@@ -104,27 +121,23 @@ export default {
 			cfgSlots: CONFIG.cfgSlots,
 			pending: {
 				elements: true,
+				projetsActifs: false
 			},
-			isConnectedUser: false,
-			projet:null,
-			timeline: {
-				start:null,
-				end:null,
-				now: new Date()
-			},
-			projetsList: [],
-			metiersList: []
+			isConnectedUser: false
 		}
 	},
 
 	computed: {
-		// ...mapState(['elements', 'openedElement'])
+		...mapState(['projet', 'timeline']),
+
 		isRessources() {
 			if(	this.$route.name === 'Ressources' || 
+				this.$route.name === 'RessourcesProjet' || 
 				this.$route.name === 'AjoutGroup' || 
 				this.$route.name === 'ConfigHeures' || 
 				this.$route.name === 'EditProjet' || 
 				this.$route.name === 'EditTimeline' ||
+				this.$route.name === 'RessourcesAjoutProjet' ||
 				this.$route.name === 'AjoutBesoins') 
 			{
 				return true;
@@ -146,12 +159,18 @@ export default {
 		}
 	},
 
+	components: {AppWrapper, AppMenu, AppMenuItem, SideBarAffectation},
+
 	methods: {
+		...mapActions(['refreshTimeline', 'refreshProjetsActifs']),
+
 		/**
 		 * Retourne la représentation d'une date lisible par un humain.
-		 * @param {DateTime} date Date à analyser
-		 * @param {String} fallbackText Texte à afficher au cas ou date est non renseigné (défaut '')
-		 * @returns {String}
+		 * 
+		 * @param {dateTime} date Date à analyser
+		 * @param {string} fallbackText Texte à afficher au cas ou date est non renseigné (défaut '')
+		 * 
+		 * @returns {string}
 		 */
 		getDateHuman(date, fallbackText) {
 			fallbackText = typeof fallbackText === 'undefined' ? '' : fallbackText;
@@ -184,7 +203,7 @@ export default {
 		 * Envoie une requête pour lister les éléments et les stocke dans le store
 		 * 
 		 * @param {Object} params Paramètre passés en GET dans l'URL
-		 * @param {String} action 'update' (défaut), 'replace', 'remove'
+		 * @param {string} action 'update' (défaut), 'replace', 'remove'
 		 */
 		listElements(params, action) {
 			action = typeof action === 'undefined' ? 'update' : action;
@@ -201,44 +220,52 @@ export default {
 		/**
 		 * Change de structure, vide le store
 		 * 
-		 * @param {Integer} structureId
+		 * @param {integer} structureId
 		 */
 		switchStructure(structureId) {
 			this.$router.push('/');
 			this.$store.dispatch('switchStructure', structureId);
+
 			this.listElements();
+			this.getAllProjet();
+			this.setTimeline();
 		},
 
 		/**
-		 * Met a jour l'objet projet
-		 * @param {Objet} projet
+		 * Récupère tout les projets in production
 		 */
-		updateProjet(projet) {
-			this.projet = projet;
+		getAllProjet() {
+			this.pending.projetsActifs = true;
+
+			let urlApi = '/projet/GET/list';
+
+			this.$app.apiGet(urlApi, {
+				in_production: true
+			}).then( (data) => {
+				this.refreshProjetsActifs(data);
+			}).catch(this.$app.catchError);
+
+			this.pending.projetsActifs = false;
 		},
 
 		/**
-		 * Get object timeline from $emit and update this.timeline
-		 * @param {Object} timeline 
+		 * Initialise la timeline
 		 */
-		updateTimeline(timeline) {
-			this.timeline = timeline;
+		setTimeline() {
+			let timelineStart = new Date();
+			timelineStart = timelineStart.getMonday();
+			
+			let timelineEnd = new Date(timelineStart);
+			timelineEnd.setDate(timelineStart.getDate() + 28);
+
+			let tmpTimeline = {
+				start: timelineStart,
+				end: timelineEnd,
+				now: new Date()
+			}
+
+			this.refreshTimeline(tmpTimeline);
 		}
-	},
-
-	components: {
-		AppWrapper,
-		AppMenu,
-		AppMenuItem,
-		SideBarAffectation
-	},
-
-	mounted() {
-		this.timeline.start = new Date();
-        this.timeline.start = this.timeline.start.getMonday();
-
-        this.timeline.end = new Date(this.timeline.start);
-        this.timeline.end.setDate(this.timeline.start.getDate() + 28);
 	}
 
 

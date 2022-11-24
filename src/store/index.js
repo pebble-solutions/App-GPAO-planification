@@ -7,18 +7,32 @@ export default createStore({
 		login: null,
 		elements: [],
 		openedElement: null,
-		tmpElement: null
+		tmpElement: null,
+		
+		selectedCells: null,
+		ressourcesBesoin: null,
+		projetsList: [],
+		projetsActifs: [],
+		ressourcesRHType: null,
+		timeline: {
+			start: null,
+			end: null,
+			now: new Date()
+		}
 	},
+
 	getters: {
 		activeStructure(state) {
 			return state.structures.find(e => e.id === state.activeStructureId);
 		}
 	},
+
 	mutations: {
 		/**
 		 * Charge un objet dans openedElement
+		 * 
 		 * @param {Object} state Le state de l'instance VueX
-		 * @param {Integer} id L'ID de l'élément à charger
+		 * @param {number} id L'ID de l'élément à charger
 		 */
 		open(state, id) {
 			state.openedElement = id;
@@ -27,6 +41,7 @@ export default createStore({
 
 		/**
 		 * Ferme l'élément ouvert
+		 * 
 		 * @param {Object} state Le state de l'instance VueX
 		 */
 		close(state) {
@@ -35,6 +50,7 @@ export default createStore({
 
 		/**
 		 * Remplace la liste des éléments chargés avec une nouvelle liste
+		 * 
 		 * @param {Object} state		Le state de l'instance VueX
 		 * @param {Array} elements		La nouvelle liste d'éléments
 		 */
@@ -46,6 +62,7 @@ export default createStore({
 		 * Rafraichie la liste des éléments chargés à partir d'une autre liste.
 		 * - si un élément existe dans state et dans elements, il est actualisé avec le nouveau
 		 * - si un élément est dans elements mais pas dans state, il est ajouté
+		 * 
 		 * @param {Object} state		Le state de l'instance VueX
 		 * @param {Array} elements		La nouvelle liste d'éléments
 		 */
@@ -68,6 +85,7 @@ export default createStore({
 
 		/**
 		 * Retire des éléments de la liste des éléments chargés
+		 * 
 		 * @param {Object} state Le state de l'instance vueX
 		 * @param {Array} elements Les ID des éléments à retirer
 		 */
@@ -83,6 +101,7 @@ export default createStore({
 
 		/**
 		 * Met à jour les données de l'élément chargé
+		 * 
 		 * @param {Object} state Le state de l'instance vueX
 		 * @param {Object} data Liste clé valeur des infos à mettre à jour
 		 */
@@ -94,6 +113,7 @@ export default createStore({
 
 		/**
 		 * Enregistre le login dans le store
+		 * 
 		 * @param {Object} state Le state de l'instance vueX
 		 * @param {Object} login L'objet Login
 		 */
@@ -103,6 +123,7 @@ export default createStore({
 
 		/**
 		 * Enregistre les structures chargées dans le store
+		 * 
 		 * @param {Object} state Le state de l'instance vueX
 		 * @param {Array} structures La liste des structures
 		 */
@@ -112,6 +133,7 @@ export default createStore({
 
 		/**
 		 * Enregistre une donnée dubliqué de openedElement
+		 * 
 		 * @param {Object} state Le state de l'instance vueX
 		 * @param {Object} data Un objet identique à la structure de openedElement
 		 */
@@ -121,18 +143,120 @@ export default createStore({
 
 		/**
 		 * Enregistre la structure active dans le store
+		 * 
 		 * @param {Object} state Le state de vueX
-		 * @param {Integer} structureId L'id de la structure à activer
+		 * @param {number} structureId L'id de la structure à activer
 		 */
 		setStructureId(state, structureId) {
 			state.activeStructureId = structureId;
+		},
+
+		/**
+		 * Enregistre la liste des cellules sélectionnés avec leur valeur
+		 * 
+		 * @param {Object} state Le state de vueX
+		 * @param {Object} oSelectedCells L'id de la structure à activer
+		 */
+		setSelectedCells(state, oSelectedCells) {
+			state.selectedCells = oSelectedCells;
+		},
+
+		/**
+		 * Enregistre ou modifie la Liste des RessourcesBesoin du projet dans le store
+		 * 
+		 * @param {Object} state Le state de vueX
+		 * @param {Array} optionsRessourcesBesoin
+		 * 		-actions	{string}	update, undefined
+		 * 		-data		{Array}		Liste des ressources besoins
+		 */
+		setRessourcesBesoin(state, optionsRessourcesBesoin) {
+			if("update" == optionsRessourcesBesoin.action) {
+				optionsRessourcesBesoin.data.forEach(besoin => {
+					let found = state.ressourcesBesoin.find(e => e.id == besoin.id);
+	
+					if (found) {
+						for (let key in besoin) {
+							found[key] = besoin[key]
+						}
+					} else {
+						state.ressourcesBesoin.push(besoin);
+					}
+				});
+			} else {
+				state.ressourcesBesoin = optionsRessourcesBesoin;
+			}
+		},
+
+		/**
+		 * Enregistre une liste de ressources rh type dans le store
+		 * 
+		 * @param {Object} state Le state de vueX
+		 * @param {Array} aRessourcesRHType La liste des ressources rh type
+		 */
+		setRessourcesRHType(state, aRessourcesRHType) {
+			state.ressourcesRHType = aRessourcesRHType;
+		},
+
+
+		/**
+		 * Enregistre La timeline de l'application
+		 * 
+		 * @param {Object} state Le state de vueX
+		 * @param {Object} oTimeline Object timeline (start, end , now)
+		 */
+		setTimeline(state, oTimeline) {
+			state.timeline = oTimeline;
+		},
+
+		/**
+		 * Enregistre ou met à jour le state projetList en ajoutant ou retirant les projets.
+		 * 
+		 * @param {Object} state Le state de vueX
+		 * @param {Array} aProjetsListId Liste de projet de
+		 */
+		setProjetsList(state, aProjetsListId) {
+			console.log('state', state);
+			console.log('projet id list', aProjetsListId);
+			
+			/** Ajout les projets sélectionnés manquant a projetsList */
+			for(let i in aProjetsListId) {
+				let find = state.projetsList.find(projet => projet.id == aProjetsListId[i]);
+
+				if (!find) {
+					let oProjet = state.projetsActifs.find(projet => projet.id == aProjetsListId[i])
+					state.projetsList.push(oProjet);
+				}
+			}
+
+			/** retire les projets sélectionnés manquant a projetsList */
+			state.projetsList.forEach( (projet, key) => {
+				console.log("calue", projet);
+				console.log('key', key);
+
+				let find = aProjetsListId.find(projetId => projetId == projet.id);
+
+				if (!find) {
+					state.projetsList.splice(key, 1);
+				}
+			});
+
+		},
+
+		/**
+		 * Enregistre les projets actifs
+		 * @param {Object} state Le state de vueX
+		 * @param {Array} aProjets Liste de projets actifs
+		 */
+		setProjetsActifs(state, aProjets) {
+			state.projetsActifs = aProjets;
 		}
 	},
+
 	actions: {
 		/**
 		 * Charge un élément depuis le store via son ID
 		 * @param {Object} context Instance VueX
-		 * @param {Integer} elementId Id de l'élément à charger depuis les éléments existants ou depuis l'API
+		 * @param {number} elementId Id de l'élément à charger depuis les éléments existants ou depuis l'API
 		 */
 		load(context, elementId) {
 			let el = context.state.elements.find(e => e.id == elementId);
@@ -211,13 +335,78 @@ export default createStore({
 		/**
 		 * Bascule sur une structure
 		 * @param {Object} context L'instance vueX
-		 * @param {Integer} payload L'ID de la structure active
+		 * @param {integer} payload L'ID de la structure active
 		 */
 		switchStructure(context, payload) {
 			context.commit('close');
 			context.commit('tmpElement', null);
 			context.commit('replaceElements', []);
 			context.commit('setStructureId', payload);
+		},
+
+		/**
+		 * Ajout une Cell a la Sélection (au tableau SelectionCell)
+		 * @param {Object} context L'instance vueX
+		 * @param {Object} data Un object contenant la cellule de départ et la cellule de fin
+		 */
+		refreshSelectedCells(context, data) {
+			context.commit('setSelectedCells', data);
+		},
+
+		/**
+		 * Ajout ou remplace le state ressourcesBesoin
+		 * 
+		 * @param {Object} context L'instance VueX
+		 * @param {Array} ressourcesBesoin 
+		 * 		-action		{string}	update
+		 * 		-data		{Array}		Liste des ressources dont à besoin un projet
+		 */
+		refreshRessourcesBesoin(context, ressourcesBesoin) {
+			let data = ressourcesBesoin['data'];
+
+			if ('update' == ressourcesBesoin['action']) {
+				context.commit('setRessourcesBesoin', {data, action : 'update'});
+			} else {
+				context.commit('setRessourcesBesoin', data);
+			}
+		},
+
+		/**
+		 * Ajout ou remplace le state ressourcesRHType
+		 * 
+		 * @param {Object} context L'instance vueX
+		 * @param {Array} ressourcesRHType Liste de ressources rh type
+		 */
+		refreshRessourcesRHType(context, ressourcesRHType) {
+			context.commit('setRessourcesRHType', ressourcesRHType);
+		},
+
+		/**
+		 * Ajout une timeline de l'application
+		 * 
+		 * @param {Object} context L'instance vueX
+		 * @param {Object} timeline object timeline
+		 */
+		refreshTimeline(context, timeline) {
+			context.commit('setTimeline', timeline);
+		},
+		
+		/**
+		 * Ajout une liste de projets actifs dans le store
+		 * @param {Object} context L'instance vueX
+		 * @param {Array} aProjets Liste des projets actifs
+		 */
+		refreshProjetsActifs(context, aProjets) {
+			context.commit('setProjetsActifs', aProjets);
+		},
+		
+		/**
+		 * Enregistre les projets sélectionnés
+		 * @param {Object} context L'instance vueX
+		 * @param {Array} aProjetsListId Liste d'id des projets actifs qui sont séléctionnées
+		 */
+		refreshProjetsList(context, aProjetsListId) {
+			context.commit('setProjetsList', aProjetsListId);
 		}
 	},
 	modules: {

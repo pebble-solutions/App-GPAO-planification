@@ -26,12 +26,9 @@
 
 <script>
 import '@/js/date.js';
+import { mapState } from 'vuex';
 
 export default {
-    props: {
-        timeline: Object
-    },
-
     data() {
         return {
             dayDict: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
@@ -39,6 +36,8 @@ export default {
     },
 
     computed: {
+        ...mapState(['timeline']),
+        
         /**
          * daysList()
          * Retourne la liste des dates (objet Date) start et end.
