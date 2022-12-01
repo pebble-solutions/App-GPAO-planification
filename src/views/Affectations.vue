@@ -1,6 +1,6 @@
 <template>
     <div class="col overflow-auto">
-        <div class="row no-gutters" v-if="projetList.lenght > 0">
+        <div class="row no-gutters" v-if="projetsList.lenght > 0">
             <CalendarTimeline :is-affectation="true"></CalendarTimeline>
         </div>
         
@@ -19,15 +19,14 @@
 
 <script>
 import CalendarTimeline from "@/components/CalendarTimeline.vue";
-//import AlertMessage from "@/components/pebble-ui/AlertMessage.vue"
 
 import { mapState } from 'vuex';
 
 export default {
     inheritAttrs: false,
-    
+
     computed: {
-        ...mapState(['projetList'])
+        ...mapState(['projetsList'])
     },
 
     components: {CalendarTimeline},

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="col overflow-auto" v-if="projet_id">
+        <div class="col overflow-auto" v-if="projetsList.length > 0">
             <AppToolbar class-list="position-sticky" style-list="left:0px; right:0px; z-index:500;" id="main">
                 <AppToolbarItem class-list="border-right me-2">
                     <form class="form-inline" @submit.prevent="addToSelection">
@@ -14,7 +14,7 @@
                 </AppToolbarItem>
         
                 <AppToolbarItem >
-                    <router-link :to="{name:'AjoutGroup', params:{id : projet_id}}" custom v-slot="{navigate, href}">
+                    <router-link :to="{name:'AjoutGroup'}" custom v-slot="{navigate, href}">
                         <a :href="href" @click="navigate" class="btn btn-outline-secondary ms-2">
                             Ajout groupé
                         </a>
@@ -22,7 +22,7 @@
                 </AppToolbarItem>
     
                 <AppToolbarItem class-list="ms-2">
-                    <router-link :to="{name:'AjoutBesoins', params:{id : projet_id}}" custom v-slot="{navigate, href}">
+                    <router-link :to="{name:'AjoutBesoins'}" custom v-slot="{navigate, href}">
                         <a class="btn btn-primary btn-block layer-full" :href="href" @click="navigate">
                             <i class="fa fa-plus"></i>
                             Métiers
@@ -54,8 +54,8 @@
                 </router-link>
             </HeaderToolbar> -->
     
-            <div class="row" v-if="projetsList">
-                <CalendarTimeline ref="CalendarTimeline" :timeline="timeline" :pointed-cells-obj="pointedCells" :is-ressources="true"/>
+            <div class="row">
+                <CalendarTimeline/>
             </div>
         </div>
 
@@ -124,30 +124,12 @@ export default {
         ...mapActions(['refreshProjet', 'refreshRessourcesBesoin']),
         
         /**
-         * Récupère le projet via l'api avec projet_id 
-         * et l'enregistre dans le store
-         */
-        getProjet() {
-            this.pending.projet = true;
-
-            let urlApi = `/projet/GET/${this.projet_id}/?api_hierarchy=1`;
-
-            this.$app.apiGet(urlApi, {
-                list_besoins_rh: true
-            }).then( (data) => {
-                this.refreshProjet(data);
-                this.getRessourcesBesoin();
-            }).catch(this.$app.catchError);
-
-            this.pending.projet = false;
-        },
-
-        /**
          * Prépare une requête pour un groupe de cellules sélectionnées. Calcule le point de départ et le point d'arrivé,
          * liste l'ensemble des métiers concernés, le jour de départ et le jour de fin.
          * La requête est préparée puis envoyée dans la méthode recordGroup()
          */
         addToSelection() {
+            let projetId = null;
             let metiers_id = [];
             let oSize = Object.keys(this.selectedCells).length;
             let count = 1;
@@ -169,6 +151,10 @@ export default {
                     metiers_id.push(this.selectedCells[cell][0].metier.id);
                 }
 
+                if (!projetId) {
+                    projetId = this.selectedCells[cell][0].projet_id;
+                }
+
                 count++;
             }
 
@@ -176,7 +162,7 @@ export default {
                 dd:compStart.jour.getSqlDate(),
                 df:compEnd.jour.getSqlDate(),
                 nb:this.selectionBesoins,
-                projet_id:this.projet_id,
+                projet_id: projetId,
                 projet__liaison_besoin_rh_id: metiers_id.join(','),
                 days: '1,2,3,4,5,6,7'
             }
@@ -227,6 +213,10 @@ export default {
             }).catch(this.$app.catchError);
         },
     },
+
+    mounted() {
+        this.getRessourcesBesoin();
+    }
 
 }
 </script>

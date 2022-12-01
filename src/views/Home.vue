@@ -14,7 +14,7 @@
 				</a>			
 			</router-link>
 	
-			<router-link :to="{name: 'Ressources'}" custom v-slot="{navigate, href}">
+			<router-link :to="{name: 'Affectations'}" custom v-slot="{navigate, href}">
 				<a :href="href" @click="navigate" class="btn btn-outline-dark" role="button">
 					<div class="row">
 						<i class="bi bi-person-add fs-1"></i>
@@ -23,7 +23,7 @@
 				</a>			
 			</router-link>
 	
-			<router-link :to="{name: 'Ressources'}" custom v-slot="{navigate, href}">
+			<router-link :to="{name: 'Planning'}" custom v-slot="{navigate, href}">
 				<a :href="href" @click="navigate" class="btn btn-outline-dark" role="button">
 					<div class="row">
 						<i class="bi bi-calendar2 fs-1"></i>

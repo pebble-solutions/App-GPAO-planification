@@ -18,6 +18,10 @@ export default createStore({
 			start: null,
 			end: null,
 			now: new Date()
+		},
+		page: {
+			ressources: false,
+			affectation: false
 		}
 	},
 
@@ -214,10 +218,7 @@ export default createStore({
 		 * @param {Object} state Le state de vueX
 		 * @param {Array} aProjetsListId Liste de projet de
 		 */
-		setProjetsList(state, aProjetsListId) {
-			console.log('state', state);
-			console.log('projet id list', aProjetsListId);
-			
+		setProjetsList(state, aProjetsListId) {			
 			/** Ajout les projets sélectionnés manquant a projetsList */
 			for(let i in aProjetsListId) {
 				let find = state.projetsList.find(projet => projet.id == aProjetsListId[i]);
@@ -230,9 +231,6 @@ export default createStore({
 
 			/** retire les projets sélectionnés manquant a projetsList */
 			state.projetsList.forEach( (projet, key) => {
-				console.log("calue", projet);
-				console.log('key', key);
-
 				let find = aProjetsListId.find(projetId => projetId == projet.id);
 
 				if (!find) {
@@ -249,6 +247,15 @@ export default createStore({
 		 */
 		setProjetsActifs(state, aProjets) {
 			state.projetsActifs = aProjets;
+		},
+
+		/**
+		 * 
+		 * @param {Object} state Le state de vueX
+		 * @param {Object} oPage Liste des pages, avec value a true sur la page en cours
+		 */
+		setPage(state, oPage) {
+			state.page = oPage;
 		}
 	},
 
@@ -407,6 +414,16 @@ export default createStore({
 		 */
 		refreshProjetsList(context, aProjetsListId) {
 			context.commit('setProjetsList', aProjetsListId);
+		},
+
+		/**
+		 * Enregistre la page en cours a true soit affectation ou ressources 
+		 * si tous a false on est sur la home
+		 * @param {Obejct} context L'instance VueX
+		 * @param {Object} oPage Liste des differents pages avec un value a true pour la page en cours
+		 */
+		refreshPage(context, oPage) {
+			context.commit('setPage', oPage);
 		}
 	},
 	modules: {

@@ -3,12 +3,12 @@
         <div class="row" v-if="!pending.timeline">
             <div class="col">
                 <label class="mx-1" for="datedebut">Date de début</label>
-                <input type="date" :min="projet.ddp" :max="projet.dfp" class="form-control mx-1" id="datedebut" v-model="tmpTimeline.start">
+                <input type="date" :min="minProjetDate" :max="maxProjetDate" class="form-control mx-1" id="datedebut" v-model="tmpTimeline.start">
             </div>
 
             <div class="col">
                 <label class="mx-1" for="datefin">Date de fin</label>
-                <input type="date" :min="projet.ddp" :max="projet.dfp" class="form-control mx-1" id="datefin" v-model="tmpTimeline.end">
+                <input type="date" :min="minProjetDate" :max="maxProjetDate" class="form-control mx-1" id="datefin" v-model="tmpTimeline.end">
             </div>
         </div>
     </AppModal>
@@ -18,7 +18,6 @@
 import AppModal from '@/components/pebble-ui/AppModal.vue';
 import '@/js/date.js';
 import { mapActions, mapState } from 'vuex';
-//import date from 'date-and-time';
 
 export default {
     data() {
@@ -32,25 +31,53 @@ export default {
                 start: null,
                 end: null,
                 now: new Date()
-            }
+            },
+            routeProjetListId: null
         }
     },
 
     computed: {
-        ...mapState(['projet', 'timeline']),
+        ...mapState(['projetsList', 'timeline']),
 
-        // tmpTimeline() {
-        //     return this.timeline;
-        // },
+        /**
+         * Retourne la date de début la plus ancienne par rapport à la liste de projet
+         */
+        minProjetDate() {
+            if (0 == this.projetsList.length) {
+                return this.tmpTimeline.start;
+            }
 
-        // start() {
-        //     return this.tmpTimeline.start.getSqlDate();
-        // },
+            let minDate = null;
 
-        // end() {
-        //     return this.tmpTimeline.end.getSqlDate();
-        // }
+            this.projetsList.forEach(projet => {
+                if (!minDate || minDate > projet.ddp) {
+                    minDate = projet.ddp;
+                }
+            });
+            
+
+            return minDate;
+        },
+
+        /**
+         * Retourne la date de fin la plus loin par rapport à la liste de projet
+         */
+        maxProjetDate() {
+            if (0 == this.projetsList.length) {
+                return this.tmpTimeline.end;
+            }
+
+            let maxDate = null;
+
+            return maxDate;
+        }
     },
+
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            vm.routeProjetListId = from.params.projetListId;
+        })
+    },  
 
     components: {AppModal},
 
@@ -72,7 +99,7 @@ export default {
          * Put back the url route before the modal route
          */
         backPreviousRoute() {
-            this.$router.push({name:"Ressources", params:{id: this.projet.id}});
+            this.$router.push({name:"Ressources", params:{projetListId: this.routeProjetListId}});
         },
     },
 

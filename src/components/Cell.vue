@@ -61,7 +61,7 @@
 </style>
 
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions} from 'vuex';
 
 export default {
     props:{
@@ -70,7 +70,8 @@ export default {
         j: Number,
         metier: Object,
         jour: Date,
-        selected: Boolean
+        selected: Boolean,
+        projet_id: Number
     },
 
     data() {
@@ -83,8 +84,6 @@ export default {
     },
 
     computed: {
-        ...mapState(['projet']),
-
         /**
          * Retourne la liste des classes CSS à appliquer à la cellule en fonction du contexte (sélectionnée/non, week-end...)
          * 
@@ -104,19 +103,6 @@ export default {
             }
 
             return classList;
-        },
-
-        /**
-         * Récupère le projet id en fonction du projet chargé dans le storage-modal
-         * 
-         * @return  {?number}
-         */
-        projet_id() {
-            if (this.projet) {
-                return this.projet.id;
-            } 
-
-            return null;
         }
     },
 

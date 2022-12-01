@@ -1,6 +1,6 @@
 <template>
     <AppModal id="ajoutGroup" title="Ajout Groupé" :pending="pending.ajoutgroupe" :submit-btn="true" :cancel-btn="true" @submit="addToGroup()" @modal-hide="backPreviousRoute()">
-        <div v-if="projet && ressources_besoin_group">
+        <div v-if="projetList && ressources_besoin_group">
             <div class="form-group">
                 <label for="selectmetier">Choissisez un métier:</label>
 
@@ -71,12 +71,19 @@ export default {
             days: [{lundi:0,mardi:1, mercredi:2, jeudi:3, vendredi:4}, {samedi:5, dimanche:6}],
             pending: {
                 ajoutgroupe: false
-            }
+            },
+            routeProjetListId: null
         }
     },
 
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            vm.routeProjetListId = from.params.projetListId;
+        })
+    },
+
     computed: {
-        ...mapState(['projet', 'ressourcesRHType']),
+        ...mapState(['projetList', 'ressourcesRHType', 'selectedCells']),
 
         ressources_besoin_group() {
             return this.initGroupModal();
@@ -109,7 +116,7 @@ export default {
          * Retourne a la page précédente
          */
          backPreviousRoute() {
-            this.$router.push({name:"Ressources", params:{id: this.projet.id}})
+            this.$router.push({name:"Ressources", params: {projetListId: this.routeProjetListId}});
         },
 
         /**
