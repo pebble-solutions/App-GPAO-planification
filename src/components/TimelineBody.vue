@@ -17,9 +17,23 @@
                         <a href="#?" class="text-decoration-none text-secondary" @click="filterTimeline('dfp', projet.dfp)">{{projet.dfp}}</a>
                     </div>
     
-                    <a :href="'/mkg/modules/organisation/private/php/projet_4_app.php?projet_id='+projet.id+'&view=ressource#!ressource/besoins'" class="btn btn-outline-primary ms-3 sticky_metier sticky6_metier_title" target="_blank" v-if="!page.ressources">
+                    <a href="" class="btn btn-outline-primary ms-3 sticky_metier sticky6_metier_title" target="_blank" v-if="!page.ressources">
                         Définir les besoins
                     </a>
+
+                    <router-link :to="{name:'AjoutBesoins', params: {id: projet.id}}" custom v-slot="{navigate, href}" v-if="page.ressources">
+                        <a class="btn btn-primary btn-block layer-full fs-6 ms-3" :href="href" @click="navigate">
+                            <i class="bi bi-plus-lg"></i>
+                            Métiers
+                        </a>
+                    </router-link>
+
+                    <router-link :to="{name:'ConfigHeures', params: {id: projet.id}}" custom v-slot="{navigate, href}" v-if="page.ressources">
+                        <a class="btn btn-secondary btn-block layer-full ms-3" :href="href" @click="navigate">
+                            <i class="bi bi-clock"></i>
+                            Heures de travail
+                        </a>
+                    </router-link>
                 </div>
             </th>
         </tr>

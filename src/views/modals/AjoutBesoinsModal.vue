@@ -60,16 +60,17 @@ export default {
         return {
             pending: {
                 ressources_rh_type: false
-            }
+            },
+            routeProjetListId: null
         }
     },
 
     computed: {
-        ...mapState(['projet', 'ressourcesRHType']),
+        ...mapState(['ressourcesRHType', 'projetsList']),
 
-        // projetInstance() {
-        //     return this.projet;
-        // },
+        projet() {
+            return this.projetsList.find(p => p.id == this.$route.params.id);
+        },
 
         tmpProjet() {
             return this.initTmpProjet();
@@ -84,12 +85,18 @@ export default {
         }
     },
 
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            vm.routeProjetListId = from.params.projetListId;
+        })
+    },  
+
     components: {
         AppModal
     },
 
     methods: {
-        ...mapActions(['refreshRessourcesRHType', 'refreshProjet']),
+        ...mapActions(['refreshRessourcesRHType', 'editProjetFomProjetsList']),
 
          /**
          * Enregistre les valeurs du formulaire de la modification besoins sur la journée des métier ('matin', 'apres-midi', 'journée', 'nuit')
@@ -114,7 +121,7 @@ export default {
 
             this.$app.apiPost(urlApi, query)
             .then( (data) => {
-                this.refreshProjet(data);
+                this.editProjetFomProjetsList(data);
 
                 this.pending.ressources_rh_type = false;
                 this.backPreviousRoute();
@@ -190,7 +197,7 @@ export default {
          * Retourne a la page précédente
          */
         backPreviousRoute() {
-            this.$router.push({name:"Ressources", params:{id: this.projet.id}})
+            this.$router.push({name:"Ressources", params:{projetListId: this.routeProjetListId}});
         }
     },
 

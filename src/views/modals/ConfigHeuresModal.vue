@@ -105,27 +105,38 @@ export default {
         return{
             pending:{
                 projet: false
-            }
+            },
+            routeProjetListId: null
         }
     },
 
     computed: {
-        ...mapState(['projet']),
+        ...mapState(['projetsList']),
+
+        projet() {
+            return this.projetsList.find(p => p.id == this.$route.params.id);
+        },
         
         tmpProjet() {
             return this.initTmpProje();
         }
     },
 
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            vm.routeProjetListId = from.params.projetListId;
+        })
+    },  
+
     components: {AppModal},
 
     methods: {
-        ...mapActions(['refreshProjet']),
+        ...mapActions(['refreshProjetsList', 'editProjetFomProjetsList']),
         /**
          * Put back the url route before the modal route
          */
         backPreviousRoute() {
-            this.$router.push({name:"Ressources", params:{id: this.projet.id}})
+            this.$router.push({name:"Ressources", params:{projetListId: this.routeProjetListId}});
         },
 
         /**
@@ -150,11 +161,14 @@ export default {
         recordProjet(){
             this.pending.projet = true;
 
+            console.log(this.projet);
+
             let urlApiProjet = "/projet/POST/"+this.projet.id +"/";
 
             this.$app.apiPost(urlApiProjet, this.tmpProjet)
             .then( (data) => {
-                this.refreshProjet(data);
+                let projetList = data;
+                this.editProjetFomProjetsList(projetList);
 
                 this.pending.projet = false;
                 this.backPreviousRoute();

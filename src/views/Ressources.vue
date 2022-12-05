@@ -20,15 +20,6 @@
                         </a>
                     </router-link>
                 </AppToolbarItem>
-    
-                <AppToolbarItem class-list="ms-2">
-                    <router-link :to="{name:'AjoutBesoins'}" custom v-slot="{navigate, href}">
-                        <a class="btn btn-primary btn-block layer-full" :href="href" @click="navigate">
-                            <i class="fa fa-plus"></i>
-                            Métiers
-                        </a>
-                    </router-link>
-                </AppToolbarItem>
             </AppToolbar>
             <!-- <HeaderToolbar>
                 <form class="form-inline " @submit.prevent="addToSelection">

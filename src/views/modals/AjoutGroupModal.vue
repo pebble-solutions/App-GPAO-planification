@@ -1,32 +1,45 @@
 <template>
     <AppModal id="ajoutGroup" title="Ajout Groupé" :pending="pending.ajoutgroupe" :submit-btn="true" :cancel-btn="true" @submit="addToGroup()" @modal-hide="backPreviousRoute()">
-        <div v-if="projetList && ressources_besoin_group">
+        <div v-if="projetsList">
             <div class="form-group">
-                <label for="selectmetier">Choissisez un métier:</label>
+                <label for="selectmetier">Choissisez un des projets affichés:</label>
 
-                <select class="form-select" id="selectmetier" name="projet__liaison_besoin_rh_id" v-model="ressources_besoin_group.projet__liaison_besoin_rh_id">
-                    <option v-for="(metier) in projet.besoins_rh" :value="metier.id" :key="metier.id">{{metier.oType.nom}} ({{metier.periode_code}})</option>
+                <select class="form-select" id="selectprojet" name="projet" v-model="selectedProjetId">
+                    <option v-for="(projet) in projetsList" :value="projet.id" :key="projet.id">{{projet.intitule}}</option>
                 </select>
             </div>
+
+            <hr>  
+            
+            <div class="form-group" >
+                <label for="selectmetier">Choissisez un métier:</label>
+
+                <AlertMessage v-if="!selectedProjet" class="mt-3">Sélectionnez un projet avant de pouvoir renseigner un metiers</AlertMessage>
+
+                <select v-else class="form-select" id="selectmetier" name="projet__liaison_besoin_rh_id" v-model="ressources_besoin_group.projet__liaison_besoin_rh_id">
+                    <option v-for="(metier) in selectedProjet.besoins_rh" :value="metier.id" :key="metier.id">{{metier.oType.nom}} ({{metier.periode_code}})</option>
+                </select>
+            </div>
+
+            <hr v-if="selectedProjet">  
     
-            <!--date début date fin-->
-            <div class="form-row">
+            
+            <div class="form-row" v-if="selectedProjet">
                 <div class="form-group col">
                     <label for="datedebut">date début:</label>
-                    <input type="date" class="form-control" id="datedebut" name="dd" :min="projet.ddp" :max="projet.dfp" v-model="ressources_besoin_group.dd" required>
+                    <input type="date" class="form-control" id="datedebut" name="dd" :min="selectedProjet.ddp" :max="selectedProjet.dfp" v-model="ressources_besoin_group.dd" required>
                 </div>
     
                 <div class="form-group col">
                     <label for="datefin">date fin:</label>
-                    <input type="date" class="form-control" id="datefin" name="df" :min="projet.ddp" :max="projet.dfp" v-model="ressources_besoin_group.df" required>
+                    <input type="date" class="form-control" id="datefin" name="df" :min="selectedProjet.ddp" :max="selectedProjet.dfp" v-model="ressources_besoin_group.df" required>
                 </div>
 
                 <div class="from-group col">
                     <label for="quantity">Nombre:</label>
                     <input type="number" class="form-control" name="nb" id="quantity" v-model="ressources_besoin_group.nb" required>
                 </div>
-            </div>
-    
+            </div> 
             
             <hr>  
             
@@ -49,6 +62,7 @@
 
 <script>
 import AppModal from '@/components/pebble-ui/AppModal.vue';
+import AlertMessage from '@/components/pebble-ui/AlertMessage.vue'
 
 import { mapActions, mapState } from 'vuex';
 
@@ -72,7 +86,8 @@ export default {
             pending: {
                 ajoutgroupe: false
             },
-            routeProjetListId: null
+            routeProjetListId: null,
+            selectedProjetId: null
         }
     },
 
@@ -83,14 +98,24 @@ export default {
     },
 
     computed: {
-        ...mapState(['projetList', 'ressourcesRHType', 'selectedCells']),
+        ...mapState(['projetsList', 'ressourcesRHType', 'selectedCells']),
 
+        /**
+         * Initialise la variable ressources_besoin_group avec le mappage de BESOIN_GROUP_PROPS
+         */
         ressources_besoin_group() {
             return this.initGroupModal();
+        },
+
+        /**
+         * Récupère un projet dans projetsList en fonction de l'id sélectionné
+         */
+        selectedProjet() {
+            return this.projetsList.find(projet => projet.id == this.selectedProjetId);
         }
     },
 
-    components: {AppModal},
+    components: {AppModal, AlertMessage},
 
     methods: {
         ...mapActions(['refreshRessourcesBesoin']),
@@ -138,11 +163,12 @@ export default {
                 }
             }
 
+
             let query = {
                 dd: this.ressources_besoin_group.dd,
                 df: this.ressources_besoin_group.df,
                 nb: this.ressources_besoin_group.nb,
-                projet_id: this.projet.id,
+                projet_id: this.selectedProjet.id,
                 projet__liaison_besoin_rh_id: this.ressources_besoin_group.projet__liaison_besoin_rh_id,
                 days: daySelected
             }
@@ -176,7 +202,7 @@ export default {
                 this.pending.ajoutGroup = false;
                 this.backPreviousRoute();
             }).catch(this.$app.catchError);
-        }
+        },
     },
 }
 </script>

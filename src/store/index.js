@@ -218,7 +218,9 @@ export default createStore({
 		 * @param {Object} state Le state de vueX
 		 * @param {Array} aProjetsListId Liste de projet de
 		 */
-		setProjetsList(state, aProjetsListId) {			
+		setProjetsList(state, aProjetsListId) {	
+			console.log('aProjetListId', aProjetsListId);
+
 			/** Ajout les projets sélectionnés manquant a projetsList */
 			for(let i in aProjetsListId) {
 				let find = state.projetsList.find(projet => projet.id == aProjetsListId[i]);
@@ -226,7 +228,7 @@ export default createStore({
 				if (!find) {
 					let oProjet = state.projetsActifs.find(projet => projet.id == aProjetsListId[i])
 					state.projetsList.push(oProjet);
-				}
+				} 
 			}
 
 			/** retire les projets sélectionnés manquant a projetsList */
@@ -237,7 +239,17 @@ export default createStore({
 					state.projetsList.splice(key, 1);
 				}
 			});
+		},
 
+
+		editInfoProjetsList(state, oProjet) {
+			let index = state.projetsList.findIndex(projet => projet.id == oProjet.id);
+
+			for (let [key] of Object.entries(state.projetsList[index])) {
+				if (oProjet[key]) {
+					state.projetsList[index][key] = oProjet[key];
+				}
+			}
 		},
 
 		/**
@@ -424,6 +436,15 @@ export default createStore({
 		 */
 		refreshPage(context, oPage) {
 			context.commit('setPage', oPage);
+		},
+
+		/**
+		 * Met a jour les informations d'heure d'un projet dans projetList
+		 * @param {Object} context L'instance vueX
+		 * @param {Object} oProjet Un projet
+		 */
+		editProjetFomProjetsList(context, oProjet) {
+			context.commit('editInfoProjetsList', oProjet);
 		}
 	},
 	modules: {

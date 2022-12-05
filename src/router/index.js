@@ -19,7 +19,7 @@ const routes = [
                 component: () => import('../views/modals/AjoutGroupModal.vue')
             },
             {
-                path: 'config_heures',
+                path: 'config_heures/:id',
                 name: 'ConfigHeures',
                 component: () => import('../views/modals/ConfigHeuresModal.vue')
             },
@@ -34,7 +34,7 @@ const routes = [
                 component: () => import('../views/modals/EditTimelineModal.vue')
             },
             {
-                path: 'ajoutbesoins',
+                path: 'ajoutbesoins/:id',
                 name: 'AjoutBesoins',
                 component: () => import('../views/modals/AjoutBesoinsModal.vue')
             },
