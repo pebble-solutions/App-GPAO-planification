@@ -22,7 +22,8 @@ export default createStore({
 		page: {
 			ressources: false,
 			affectation: false
-		}
+		},
+		filterRessources: []
 	},
 
 	getters: {
@@ -218,9 +219,7 @@ export default createStore({
 		 * @param {Object} state Le state de vueX
 		 * @param {Array} aProjetsListId Liste de projet de
 		 */
-		setProjetsList(state, aProjetsListId) {	
-			console.log('aProjetListId', aProjetsListId);
-
+		setProjetsList(state, aProjetsListId) {
 			/** Ajout les projets sélectionnés manquant a projetsList */
 			for(let i in aProjetsListId) {
 				let find = state.projetsList.find(projet => projet.id == aProjetsListId[i]);
@@ -262,12 +261,22 @@ export default createStore({
 		},
 
 		/**
-		 * 
+		 * Enregistre ou met à jour la page courante
 		 * @param {Object} state Le state de vueX
 		 * @param {Object} oPage Liste des pages, avec value a true sur la page en cours
 		 */
 		setPage(state, oPage) {
 			state.page = oPage;
+		},
+
+
+		/**
+		 * Met a jour le filtre de ressources
+		 * @param {Object} state Le state de vueX
+		 * @param {Array} aRessourcesRHType Liste de ressources rh type a
+		 */
+		setFilterRessources(state, aRessourcesRHType) {
+			state.filterRessources = aRessourcesRHType;
 		}
 	},
 
@@ -445,8 +454,18 @@ export default createStore({
 		 */
 		editProjetFomProjetsList(context, oProjet) {
 			context.commit('editInfoProjetsList', oProjet);
+		},
+
+		/**
+		 * Met à jour la liste d'id du filtre sur les ressources
+		 * @param {Object} context L'instance vueX
+		 * @param {Object} aRessourcesRHType un tableau d'id de ressources RH type
+		 */
+		refreshFilterRessources(context, aRessourcesRHType) {
+			context.commit('setFilterRessources', aRessourcesRHType);
 		}
 	},
+
 	modules: {
 	}
 })

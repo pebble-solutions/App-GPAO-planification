@@ -5,8 +5,7 @@
         :cfg-menu="cfgMenu"
         :cfg-slots="cfgSlots"
         
-        @auth-change="setLocal_user"
-        @structure-change="switchStructure">
+        @auth-change="setLocal_user">
 
         <template v-slot:header>
             <div class="d-flex align-items-center">
@@ -19,61 +18,19 @@
                         </a>
                     </router-link>
 
+                    <router-link :to="{name: 'RessourcesFilterRessources'}" custom v-slot="{navigate, href}">
+                        <a :href="href" @click="navigate" class="btn btn-dark">
+                            <i class="bi bi-briefcase-fill me-1" :class="{'text-warning': filterRessources.length > 0}"></i>
+                            <span v-if="filterRessources.length > 0" class="text-warning">{{filterRessources.length}} Ressource<span v-if="filterRessources.length > 1">s</span> sélectionné<span v-if="filterRessources.length > 1">s</span></span>
+                            <span v-else>Filtrer les ressources</span>
+                        </a>
+                    </router-link>
+
                     <router-link :to="{name:'EditTimeline'}" custom v-slot="{navigate, href}">
                         <a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-calendar3"></i> {{getDateHuman(timeline.start)}} <i class="bi bi-chevron-compact-right"></i> {{getDateHuman(timeline.end)}}</a>
                     </router-link>
 
-                    <button role="button" class="btn btn-primary mx-2">
-                        <i class="bi bi-box-arrow-up-right"></i>
-                        Partager
-                    </button>
-                </div>
-    
-                <div v-if="isRessources && projetsList.length > 0">
-                    <!-- <router-link :to="{name:'EditProjet', params:{id:'419'}}" custom v-slot="{navigate, href}">
-                        <a :href="href" @click="navigate" class="btn btn-dark mx-2">{{projet.intitule}} <i class="bi bi-pencil-fill"></i></a>
-                    </router-link> -->
-    
-                    <!-- <router-link :to="{name:'ConfigHeures', params:{id:'419'}}" custom v-slot="{navigate, href}">
-                        <a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-clock-fill"></i> Heure de travail</a>
-                    </router-link> -->
-                    
-                    <!-- <router-link :to="{name:'Affectations'}" custom v-slot="{navigate, href}">
-                        <a :href="href" @click="navigate" class="btn btn-primary mx-2"><i class="bi bi-person-check-fill"></i> Affecter du personnel</a>
-                    </router-link> -->
-    
-                    <!-- <router-link :to="{name:'EditTimeline', params:{id:'419'}}" custom v-slot="{navigate, href}">
-                        <a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-calendar3"></i> {{getDateHuman(timeline.start)}} <i class="bi bi-chevron-compact-right"></i> {{getDateHuman(timeline.end)}}</a>
-                    </router-link> -->
-
-                </div>
-    
-    
-                <div v-if="isAffectation && projetsList.length > 0">
-                    <!-- <router-link :to="{name:'AddProjets'}" custom v-slot="{navigate, href}">
-                        <a :href="href" class="btn btn-secondary mx-2" @click="navigate">
-                            <i class="bi bi-diagram-2-fill"></i> 
-                            {{projetsList.length}} Projet<span v-if="projetsList.length > 1">s</span>
-                        </a>
-                    </router-link>
-    
-                    <router-link :to="{name:'AddMetiers'}" custom v-slot="{navigate, href}">
-                        <a :href="href" class="btn btn-secondary mx-2" @click="navigate">
-                            <i class="bi bi-briefcase"></i>
-                            {{metiersList.length}} Metier<span v-if="metiersList.length > 1">s</span>
-                        </a>
-                    </router-link>
-                    
-                    <router-link :to="{name:'EditTimelineAffectation'}" custom v-slot="{navigate, href}">
-                        <a :href="href" @click="navigate" class="btn btn-secondary mx-2">
-                            <i class="bi bi-calendar3"></i> 
-                            {{getDateHuman(timeline.start)}} <i class="bi bi-chevron-compact-right"></i> {{getDateHuman(timeline.end)}}
-                        </a>
-                    </router-link>
-    
-                    <div class="mx-2">
-                        <a href="#!affectation/partager" class="btn btn-primary"><i class="bi bi-box-arrow-up-right"></i> Partager</a>
-                    </div> -->
+                    <BtnShare :link="(link)"></BtnShare>
                 </div>
             </div>
         </template>
@@ -93,7 +50,7 @@
 
         <template v-slot:core>
             <div class="px-2 bg-light">
-                <router-view v-if="isConnectedUser" :cfg="cfg" />
+                <router-view v-if="isConnectedUser" :cfg="cfg" @updateLink="updateLink()"/>
             </div>
         </template>
 
@@ -112,6 +69,7 @@
 import AppWrapper from '@/components/pebble-ui/AppWrapper.vue'
 import AppMenu from '@/components/pebble-ui/AppMenu.vue'
 import AppMenuItem from '@/components/pebble-ui/AppMenuItem.vue'
+import BtnShare from '@/components/pebble-ui/button/BtnShare.vue'
 import SideBarAffectation from '@/components/SideBarAffectation.vue'
 import {mapActions, mapState } from 'vuex'
 
@@ -130,12 +88,13 @@ export default {
                 elements: true,
                 projetsActifs: false
             },
-            isConnectedUser: false
+            isConnectedUser: false,
+            link: window.location.href
         }
     },
 
     computed: {
-        ...mapState(['projet', 'timeline', 'projetsList']),
+        ...mapState(['projet', 'timeline', 'projetsList', 'filterRessources']),
 
         isRessources() {
             if(	this.$route.name === 'Ressources' || 
@@ -145,6 +104,7 @@ export default {
                 this.$route.name === 'EditProjet' || 
                 this.$route.name === 'EditTimeline' ||
                 this.$route.name === 'RessourcesAjoutProjet' ||
+                this.$route.name === 'RessourcesFilterRessources' ||
                 this.$route.name === 'AjoutBesoins') 
             {
                 this.setActualPage('ressources');
@@ -165,13 +125,13 @@ export default {
             }
 
             return false;
-        }
+        },
     },
 
-    components: {AppWrapper, AppMenu, AppMenuItem, SideBarAffectation},
+    components: {AppWrapper, AppMenu, AppMenuItem, SideBarAffectation, BtnShare},
 
     methods: {
-        ...mapActions(['refreshTimeline', 'refreshProjetsActifs', 'refreshPage']),
+        ...mapActions(['refreshTimeline', 'refreshProjetsActifs', 'refreshPage', 'refreshRessourcesRHType']),
 
         /**
          * Retourne la représentation d'une date lisible par un humain.
@@ -238,6 +198,7 @@ export default {
             this.listElements();
             this.getAllProjet();
             this.setTimeline();
+            this.getRessourcesRHType();
         },
 
         /**
@@ -307,9 +268,36 @@ export default {
 
                     this.refreshPage(page);
             }
-        }
-    }
+        },
 
+        /**
+         * Récupère une liste de ressources rh type et l'enregistre dans le store
+         */
+        getRessourcesRHType() {
+            let urlApi = "/ressourcesRHType/GET/list";
+
+            this.$app.apiGet(urlApi)
+            .then((data) => {
+                this.refreshRessourcesRHType(data);
+
+                this.pending.ressources_rh_type=false;
+            }).catch(this.$app.catchError);
+        },
+
+        /**
+         * met à jour la variable link avec l'url en cours
+         */
+        updateLink() {
+            this.link = window.location.href;
+        }
+    },
+
+
+    mounted() {
+        this.$app.addEventListener('structureChanged', (structureId) => {
+			this.switchStructure(structureId);
+		});
+    }
 
 }
 </script>

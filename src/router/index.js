@@ -24,11 +24,6 @@ const routes = [
                 component: () => import('../views/modals/ConfigHeuresModal.vue')
             },
             {
-                path: 'editprojet',
-                name: 'EditProjet',
-                component: () => import('../views/modals/EditPtojetModal.vue')
-            },
-            {
                 path: 'edittimeline',
                 name: 'EditTimeline',
                 component: () => import('../views/modals/EditTimelineModal.vue')
@@ -42,6 +37,11 @@ const routes = [
                 path: 'ajoutprojet',
                 name: 'RessourcesAjoutProjet',
                 component: () => import('../views/modals/AddProjetsModal.vue')
+            },
+            {
+                path: 'filtermetier',
+                name: 'RessourcesFilterRessources',
+                component: () => import('../views/modals/FilterRessourcesModal.vue')
             }
         ]
     },
@@ -61,11 +61,6 @@ const routes = [
                 name: 'AddProjets',
                 component: () => import('../views/modals/AddProjetsModal.vue')
             },
-            {
-                path: 'addMetiers',
-                name: 'AddMetiers',
-                component: () => import('../views/modals/AddMetiersModal.vue')
-            }
         ]
     },
   

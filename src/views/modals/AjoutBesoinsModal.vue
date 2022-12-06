@@ -179,19 +179,6 @@ export default {
             return projet;
         },
 
-        /**
-         * Récupère une liste de ressources rh type et l'enregistre dans le store
-         */
-        getRessourcesRHType() {
-            let urlApi = "/ressourcesRHType/GET/list";
-
-            this.$app.apiGet(urlApi)
-            .then((data) => {
-                this.refreshRessourcesRHType(data);
-
-                this.pending.ressources_rh_type=false;
-            }).catch(this.$app.catchError);
-        },
 
         /**
          * Retourne a la page précédente
@@ -200,11 +187,5 @@ export default {
             this.$router.push({name:"Ressources", params:{projetListId: this.routeProjetListId}});
         }
     },
-
-    mounted() {
-        if (!this.ressourcesRHType) {
-            this.getRessourcesRHType();
-        }
-    }
 }
 </script>

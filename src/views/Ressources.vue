@@ -205,6 +205,11 @@ export default {
         },
     },
 
+    updated() {
+        
+        this.$emit('updateLink');
+    },
+
     mounted() {
         this.getRessourcesBesoin();
     }

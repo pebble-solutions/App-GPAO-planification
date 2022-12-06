@@ -1,5 +1,5 @@
 <template>
-    <tbody class="bg-white" v-for="projet in projetsList" :key="'projet-'+projet.id">
+    <tbody class="bg-white" v-for="projet in projectFilterWithFilterRessources" :key="'projet-'+projet.id">
         <tr class="table-secondary"> <!--Mettre le tr dans un component-->
             <th :colspan="daysList.length + 1">
                 <div div class="d-flex justify-content-start align-items-center">
@@ -24,7 +24,7 @@
                     <router-link :to="{name:'AjoutBesoins', params: {id: projet.id}}" custom v-slot="{navigate, href}" v-if="page.ressources">
                         <a class="btn btn-primary btn-block layer-full fs-6 ms-3" :href="href" @click="navigate">
                             <i class="bi bi-plus-lg"></i>
-                            Métiers
+                            Ressources
                         </a>
                     </router-link>
 
@@ -38,38 +38,46 @@
             </th>
         </tr>
 
-        <tr v-for="(metier, i) in projet.besoins_rh" :key="'projet-'+projet.id+'_metier-'+i">
-            <th class="text-left px-2 rowCalendar" :class="classNameBgCell(metier)">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span :title="metier.oType.nom">
-                        {{metier.oType.nom.cutText(15)}}
-                    </span>
+        <template v-if="ressourcesToShow(projet)">
+            <tr v-for="(metier, i) in ressourcesToShow(projet)" :key="'projet-'+projet.id+'_metier-'+i">
+                <th class="text-left px-2 rowCalendar" :class="classNameBgCell(metier)">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span :title="metier.oType.nom">
+                            {{metier.oType.nom.cutText(15)}}
+                        </span>
 
-                    <em>{{perDict[metier.periode_code]}}</em>
-                </div>
-            </th>
+                        <em>{{perDict[metier.periode_code]}}</em>
+                    </div>
+                </th>
 
-            <td v-for="(jour, j) in daysList" :key="'projet-'+projet.id+'_jour-'+j"
-                class="text-right planning-cell"
-                :class="{'border-end border-4': jour.getDay() === 0}"
-            >
-                <Cell :value="getBesoinNb(metier, jour)" 
-                    :i="i"
-                    :j="j"
-                    :metier="metier"
-                    :jour="jour"
-                    :selected="selectedPointedCell(i, j, projet.id)"
-                    :projet_id="projet.id"
+                <td v-for="(jour, j) in daysList" :key="'projet-'+projet.id+'_jour-'+j"
+                    class="text-right planning-cell"
+                    :class="{'border-end border-4': jour.getDay() === 0}"
+                >
+                    <Cell :value="getBesoinNb(metier, jour)" 
+                        :i="i"
+                        :j="j"
+                        :metier="metier"
+                        :jour="jour"
+                        :selected="selectedPointedCell(i, j, projet.id)"
+                        :projet_id="projet.id"
 
-                    :ref="'cell-'+i+'-'+j+'-'+projet.id"
+                        :ref="'cell-'+i+'-'+j+'-'+projet.id"
 
-                    @point-cell-start="pointCellStart(i, j, projet.id)"
-                    @point-cell-end="pointCellEnd(i, j, projet.id)"
-                    @point-cell-over="pointCellOver(i, j, projet.id)"
-                ></Cell>
+                        @point-cell-start="pointCellStart(i, j, projet.id)"
+                        @point-cell-end="pointCellEnd(i, j, projet.id)"
+                        @point-cell-over="pointCellOver(i, j, projet.id)"
+                    ></Cell>
 
-            </td>
-        </tr>
+                </td>
+            </tr>
+        </template>
+
+        <template v-else>
+            <tr>
+                <td colspan="30"> toto</td>
+            </tr>
+        </template>
     </tbody>
 </template>
 
@@ -137,7 +145,7 @@ export default {
     },
 
     computed: {
-        ...mapState(['projetsList', 'timeline', 'selectedCells', 'ressourcesBesoin', 'page']),
+        ...mapState(['projetsList', 'timeline', 'selectedCells', 'ressourcesBesoin', 'page', 'filterRessources']),
 
         /**
          * Retourne la liste des dates (objet Date) start et end.
@@ -146,13 +154,63 @@ export default {
          */
         daysList() {
             return Date.listDays(this.timeline.start, this.timeline.end);
-        }
+        },
+
+        /**
+         * Filtre la liste des projets pour ne returner que les projets qui on des ressources qui ce trouve dans filterRessources
+         * si filterRessources est vide renvoi projetList (pas de filtre effectué)
+         * 
+         * @return {Array} 
+         */
+        projectFilterWithFilterRessources() {
+            //if (this.filterRessources.length == 0 ) {
+                return this.projetsList;
+            //}
+
+            // let projetToShow = [];
+
+            // this.projetsList.forEach(projet => {
+            //     let find;
+
+            //     this.filterRessources.forEach(ressourceId => {
+            //         find = projet.besoins_rh.find(besoin => besoin.oType.id == ressourceId);
+            //     });
+
+            //     if (find) {
+            //         projetToShow.push(projet);
+            //     }
+            // });
+
+            // return projetToShow;
+        },
+
+
     },
 
     components: {Cell},
 
     methods: {
         ...mapActions(['refreshSelectedCells','refreshRessourcesBesoin']),
+
+        /**
+         * Filtre les ressources a affichées en fonction de filterRessources
+         * @param {Object}      projet
+         * 
+         * @return {Array} 
+         */
+         ressourcesToShow(projet) {
+            if (this.filterRessources.length == 0) {
+                return projet.besoins_rh;
+            }
+            
+            let newBesoinsRhFilter = [];
+
+            let besoins_rh = projet.besoins_rh;
+
+            newBesoinsRhFilter = besoins_rh.filter(besoin => this.filterRessources.includes(besoin.oType.id));
+
+            return newBesoinsRhFilter;
+        },
         
         /**
          * Permet d'ajouter des classes avec des variable en chaine de text et la renvoi

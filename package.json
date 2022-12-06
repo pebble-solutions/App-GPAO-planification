@@ -16,6 +16,7 @@
     "core-js": "^3.6.5",
     "date-and-time": "^2.4.1",
     "firebase": "^9.6.9",
+    "jwt-decode": "^3.1.2",
     "string-to-color": "^2.2.2",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
