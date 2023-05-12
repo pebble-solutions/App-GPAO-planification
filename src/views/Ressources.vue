@@ -46,7 +46,7 @@
             </HeaderToolbar> -->
     
             <div class="row">
-                <CalendarTimeline/>
+                <CalendarTimeline :listLabel="'Metiers'"/>
             </div>
         </div>
 

@@ -1,6 +1,11 @@
-import { createStore } from 'vuex'
+import { createStore } from 'vuex';
+
+// import the auto exporter
+import modules from './modules';
 
 export default createStore({
+	modules,
+
 	state: {
 		structures: [],
 		activeStructureId: null,
@@ -465,7 +470,4 @@ export default createStore({
 			context.commit('setFilterRessources', aRessourcesRHType);
 		}
 	},
-
-	modules: {
-	}
 })

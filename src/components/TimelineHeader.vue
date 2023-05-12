@@ -15,7 +15,7 @@
         </tr>
 
         <tr>
-            <th class="bg-white">Métiers</th>
+            <th class="bg-white">{{ listLabel }}</th>
             <th v-for="day in daysList" :key="'day-'+day" :class="{'border-end border-4': day.getDay() === 0, 'text-primary': day.getSqlDate() == timeline.now.getSqlDate()}">
                 <span class="d-block">{{dayDict[day.getDay()]}}</span>
                 {{day.getDate()}}
@@ -29,6 +29,10 @@ import '@/js/date.js';
 import { mapState } from 'vuex';
 
 export default {
+    props: {
+        listLabel: String
+    },
+
     data() {
         return {
             dayDict: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
