@@ -4,15 +4,14 @@
             <PersonnelName :personnel="personnel"/>
         </th>
 
-        <td>
-            <div class="position-absolute bg-secondary rounded" :style="'left:'+lp+'px; width:'+w+'px; top:5px; bottom:5px;'"></div>
+        <td class="position-absolute bg-secondary rounded" v-if="w > 0" :style="'left:'+lp+'px; width:'+w+'px; top:5px; bottom:5px;'">
         </td>
 
         <td v-for="(jour, j) in daysList" :key="j"
             class="text-start planning-cell"
             :class="{'border-end border-4': jour.getDay() === 0}"
         >
-
+            8
         </td>
     </tr>
 </template>
@@ -83,14 +82,7 @@ export default {
                 let daysSize = rowSize - headerSize;
 
                 let unit = daysSize / this.daysList.length;
-
-                // console.log("daysSize", daysSize);
-                // console.log(this.daysList.length);
-
-                // console.log('unit', unit);
-
-                // console.log("row planning personnel", this.planningItems[0]);
-
+            
                 let dayBegins = new Date(this.planningItems[0].dd);
                 let diff = Date.listDays(this.timeline.start, dayBegins);
 
@@ -111,7 +103,7 @@ export default {
          */
         width() {
             let row = document.getElementById(this.rowId);
-            let width = 10;
+            let width = 0;
 
             if (row && this.planningItems.length > 0) {
                 let header = row.querySelector('.row-header');
@@ -125,6 +117,11 @@ export default {
                 let dayBegins = new Date(this.planningItems[0].dd);
                 let dayEnd = new Date(this.planningItems[this.planningItems.length-1].df);
                 let diff = Date.listDays(dayBegins, dayEnd);
+
+                console.log(this.planningItems);
+                console.log(this.planningItems[this.planningItems.length-1].df);
+                console.log('dayBegins', dayBegins);
+                console.log('dayEnd', dayEnd);
 
                 let diffSize = diff.length * unit;
 
@@ -146,6 +143,8 @@ export default {
             this.lp = this.leftPosition();
             this.w = this.width();
         });
+
+        console.log(this.personnel.cache_nom)
     }
 };
 </script>

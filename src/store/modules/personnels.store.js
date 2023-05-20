@@ -85,12 +85,15 @@ export default {
          * @param {Object} context L'instance vuex du moduke$
          * @param {array} personnels Liste de personnels
          */
-        updatePersonnels(context, personnels)
+        updatePersonnels:
         {
-            context.commit('setPersonnels', {
-                mode: 'update',
-                personnels: personnels
-            });
+            root: true,
+            handler(context, personnels) {
+                context.commit('setPersonnels', {
+                    mode: 'update',
+                    personnels: personnels
+                });
+            }
         },
 
         /**

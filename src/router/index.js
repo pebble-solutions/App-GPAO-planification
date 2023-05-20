@@ -38,11 +38,11 @@ const routes = [
                 name: 'RessourcesAjoutProjet',
                 component: () => import('../views/modals/AddProjetsModal.vue')
             },
-            {
-                path: 'filtermetier',
-                name: 'RessourcesFilterRessources',
-                component: () => import('../views/modals/FilterRessourcesModal.vue')
-            }
+            // {
+            //     path: 'filtermetier',
+            //     name: 'RessourcesFilter',
+            //     component: () => import('../views/modals/headers/FilterRessourcesModal.vue')
+            // }
         ]
     },
 
@@ -67,7 +67,14 @@ const routes = [
     {
         path: '/planning',
         name: 'Planning',
-        component: () => import('../views/Planning.vue')
+        component: () => import('../views/Planning.vue'),
+        children: [
+            {
+                path: 'metierFiltre',
+                name : 'MetierFiltre',
+                component: () => import('../views/modals/headers/MetierFiltreModal.vue')
+            }
+        ]
     },
 
 ]

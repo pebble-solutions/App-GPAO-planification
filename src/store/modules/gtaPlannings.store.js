@@ -84,12 +84,15 @@ export default {
          * @param {Object} context L'instance vuex du moduke$
          * @param {array} gtaPlannings Liste de gta plannings
          */
-        updateGtaPlannings(context, gtaPlannings)
+        updateGtaPlannings:
         {
-            context.commit('setGtaPlannings', {
-                mode: 'update',
-                gtaPlannings: gtaPlannings
-            });
+            root: true,
+            handler(context, gtaPlannings) {
+                context.commit('setGtaPlannings', {
+                    mode: 'update',
+                    gtaPlannings: gtaPlannings
+                });
+            }
         },
 
         /**

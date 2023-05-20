@@ -9,6 +9,7 @@
 
         <template v-slot:header>
             <div class="d-flex align-items-center">
+                <!-- <RessourceFilter></RessourceFilter> -->
                 <div v-if="isRessources || isAffectation" class="ms-2">
                     <router-link :to="{name: 'RessourcesAjoutProjet'}" custom v-slot="{navigate, href}">
                         <a :href="href" @click="navigate" class="btn btn-dark">
@@ -18,20 +19,14 @@
                         </a>
                     </router-link>
 
-                    <router-link :to="{name: 'RessourcesFilterRessources'}" custom v-slot="{navigate, href}">
-                        <a :href="href" @click="navigate" class="btn btn-dark">
-                            <i class="bi bi-briefcase-fill me-1" :class="{'text-warning': filterRessources.length > 0}"></i>
-                            <span v-if="filterRessources.length > 0" class="text-warning">{{filterRessources.length}} Ressource<span v-if="filterRessources.length > 1">s</span> sélectionné<span v-if="filterRessources.length > 1">s</span></span>
-                            <span v-else>Filtrer les ressources</span>
-                        </a>
-                    </router-link>
-
                     <router-link :to="{name:'EditTimeline'}" custom v-slot="{navigate, href}">
                         <a :href="href" @click="navigate" class="btn btn-secondary mx-2"><i class="bi bi-calendar3"></i> {{getDateHuman(timeline.start)}} <i class="bi bi-chevron-compact-right"></i> {{getDateHuman(timeline.end)}}</a>
                     </router-link>
 
                     <BtnShare :link="(link)"></BtnShare>
                 </div>
+
+
             </div>
         </template>
 
@@ -75,6 +70,9 @@ import {mapActions, mapState } from 'vuex'
 
 import CONFIG from "@/config.json"
 import '@/js/date.js'
+// import RessourceFilter from './components/headers/RessourceFilter.vue'
+
+import { AssetsCollectionController } from '@/js/app/controllers/AssetsCollectionController.js';
 
 
 
@@ -89,7 +87,33 @@ export default {
                 projetsActifs: false
             },
             isConnectedUser: false,
-            link: window.location.href
+            link: window.location.href,
+            appMenu: [
+                {
+                    label: 'Accueil', 
+                    icon: 'bi bi-house', 
+                    key: "home",
+                    href: '/'
+                },
+                {
+                    label: 'Ressources',
+                    icon: 'bi bi-boxes',
+                    key: "ressources",
+                    link: '/ressources'
+                },
+                {
+                    label: 'Affectations',
+                    icon: 'bi bi-person-plus-fill',
+                    key: "affectations",
+                    link: '/affectations'
+                },
+                {
+                    label: 'Planning', 
+                    icon: 'bi bi-calendar2', 
+                    key: "planning",
+                    link: '/planning'
+                }
+            ]
         }
     },
 
@@ -128,7 +152,7 @@ export default {
         },
     },
 
-    components: {AppWrapper, AppMenu, AppMenuItem, SideBarAffectation, BtnShare},
+    components: { AppWrapper, AppMenu, AppMenuItem, SideBarAffectation, BtnShare },
 
     methods: {
         ...mapActions(['refreshTimeline', 'refreshProjetsActifs', 'refreshPage', 'refreshRessourcesRHType']),
@@ -289,6 +313,26 @@ export default {
          */
         updateLink() {
             this.link = window.location.href;
+        },
+
+        initAssets() {
+            console.log(this.$store.state);
+            console.log(this.$store.rootState);
+            let collection = new AssetsCollectionController(this, {
+                assetName: 'personnels',
+                updateAction: 'updatePersonnels',
+                apiRoute: 'v2/personnel',
+                namespace: 'Personnels'
+            });
+
+            this.$assets.addCollection('personnels', collection);
+
+            this.$assets.addCollection('gta_plannings', new AssetsCollectionController(this, {
+                assetName: 'gtaPlannings',
+                updateAction: 'updateGtaPlannings',
+                apiRoute: 'v2/gta_planning',
+                namespace: 'GtaPlannings'
+            }));
         }
     },
 
@@ -296,6 +340,7 @@ export default {
     mounted() {
         this.$app.addEventListener('structureChanged', (structureId) => {
 			this.switchStructure(structureId);
+            this.initAssets();
 		});
     }
 
