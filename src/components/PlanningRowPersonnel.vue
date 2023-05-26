@@ -144,7 +144,7 @@ export default {
             this.w = this.width();
         });
 
-        console.log(this.personnel.cache_nom)
+        console.log(this.personnel.cache_nom);
     }
 };
 </script>

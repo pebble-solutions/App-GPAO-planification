@@ -1,6 +1,6 @@
 <template>
     <AppModal 
-        title="Ajouter un projet"
+        title="Ajouter une Ressource"
         class-Name="modal-dialog-scrollable"
         submit-label = "Valider"
 
@@ -21,21 +21,23 @@
             </div>
         </form>
 
-        <AlertMessage v-if="ressourcesRHType.length == 0">
+        <AlertMessage v-if="ressourcesRHTypeData.length == 0">
             Il n'y a aucun résultat à la recherche. Cette liste n'affiche que les ressources créer. Pour 
             créer des ressources, ouvrez le module ressources.
         </AlertMessage>
         
 
         <div v-else class="list-group list-group-flush">
-            <div v-for="ressource in ressourcesRHType" :key="'ressource-'+ressource.id" class="list-group-item">       
+            <!-- <div v-for="ressource in ressourcesRHTypeData" :key="'ressource-'+ressource.id" class="list-group-item">       
                 <div class="form-check text-nowrap">
                     <input type="checkbox" class="form-check-input" :id="'ckb-ressource-'+ressource.id" :value="ressource.id" v-model="checkedRessourcesId" :aria-label="ressource.nom" name="checkedRessourcesId[]">
                     <label class="form-check-label" :for="'ckb-ressource-'+ressource.id">
                         <h6>{{ressource.nom}}</h6>
                     </label>
                 </div>
-            </div>
+            </div> -->
+
+            <RessourcesFilterModalItem v-for="ressource in ressourcesRHTypeData" :key="'ressource-'+ressource.id" :ressource="ressource" :ischecked="isChecked(ressource.id)" @update-checked="updateCheckedRessourcesId"/>
         </div>
     </AppModal>
 </template>
@@ -45,6 +47,7 @@ import AppModal from '@/components/pebble-ui/AppModal.vue';
 import AlertMessage from '@/components/pebble-ui/AlertMessage.vue';
 
 import { mapActions, mapState } from 'vuex';
+import RessourcesFilterModalItem from '../../../components/headers/RessourcesFilterModalItem.vue';
 
 export default {
     data() {
@@ -56,12 +59,15 @@ export default {
                 keyword: ''
             },
             checkedRessourcesId: [],
-            routeProjetListId: null
         }
     },
 
     computed: {
-        ...mapState(['timeline', 'filterRessources', 'ressourcesRHType'])
+        ...mapState(['timeline', 'RessourcesRHType']),
+
+        ressourcesRHTypeData() {
+            return this.RessourcesRHType['ressourcesRHType'];
+        },
     },
 
     beforeRouteEnter(to, from, next) {
@@ -70,17 +76,33 @@ export default {
         })
     },  
 
-    components: { AppModal, AlertMessage },
+    components: { AppModal, AlertMessage, RessourcesFilterModalItem },
 
 
     methods: {
-        ...mapActions(['refreshFilterRessources']),
-        
+        ...mapActions('RessourcesRHType', ['refreshRessourcesRHTypeChecked']),
         /**
-         * Put back the url route before the modal route
+         * back the url route before the modal open
          */
         backPreviousRoute() {
-            this.$router.push({name:"Ressources", params: {projetListId: this.routeProjetListId}});
+            this.$router.go(-1);
+        },
+
+        isChecked(ressourceId) {
+            console.log(this.checkedRessourcesId);
+            let foundChecked = this.checkedRessourcesId.find(id => id == ressourceId);
+
+            return foundChecked ? true : false;
+        },
+
+        updateCheckedRessourcesId(payload) {
+            let foundId = this.checkedRessourcesId.findIndex(id => id == payload);
+
+            if(-1 !== foundId) {
+                this.checkedRessourcesId.splice(foundId, 1);
+            } else {
+                this.checkedRessourcesId.push(payload);
+            }
         },
 
         /**
@@ -88,42 +110,29 @@ export default {
          * envoi les données au store pour mettre a jour la variable projetsList
          */
         confirmFilter() {
-            this.refreshFilterRessources(this.checkedRessourcesId);
+            this.refreshRessourcesRHTypeChecked(this.checkedRessourcesId);
 
             this.backPreviousRoute();  
         },
 
         /**
-         * Verifie si l'id de la ressources existe dans filterRessources
-         * si oui return true sinon false
-         * @param {number} ressourceId l'id d'une ressource
-         * 
-         * @return {boolean}
+         * Charge la collection ressourcesRHType dans une varaible du component
          */
-        isChecked(ressourceId) {
-            let find = this.filterRessources.find(ressource => ressource == ressourceId);
-
-            if (find) {
-                return true;
-            }
-
-            return false;
+        async loadRessourcesRhType() {
+            this.ressourcesRHType = this.$assets.getCollection('ressourcesRHType');
+            await this.ressourcesRHType.load();
         },
 
-        /**
-         * Initialise le tableau checkMetiersId avec les id deja existant dans filterMetier.
-         */
-        initCheckedRessourcesId() {
-            this.checkedRessourcesId = [];
-
-            this.filterRessources.forEach(ressource => {
-                this.checkedRessourcesId.push(ressource);
-            });
-        }
+        loadCheckedRessourcesId() {
+            console.log('beforeload', this.RessourcesRHType);
+            this.checkedRessourcesId = this.RessourcesRHType['ressourcesRHTypeChecked'];
+            console.log('afterload', this.checkedRessourcesId);
+        },
     },
 
-    mounted() {
-        this.initCheckedRessourcesId();
+    async beforeMount() {
+        this.loadCheckedRessourcesId();
+        await this.loadRessourcesRhType();
     },
 }
 </script>

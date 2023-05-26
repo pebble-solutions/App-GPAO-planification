@@ -24,11 +24,21 @@ export default {
     },
 
     methods: {
+        /**
+         * Charge la collection des personnels
+         * 
+         * @returns {Promise}
+         */
         async loadPersonnels() {
             this.personnelsCollection = this.$assets.getCollection('personnels');
             await this.personnelsCollection.load();
         },
 
+        /**
+         * Charge la collection des plannings en fonction des personnels
+         * 
+         * @returns {Promise}
+         */
         async loadPlannings() {
             await this.loadPersonnels();
             
@@ -49,7 +59,7 @@ export default {
         }
     },
 
-    async mounted() {
+    async mounted() { 
         await this.loadPlannings();
     }
 

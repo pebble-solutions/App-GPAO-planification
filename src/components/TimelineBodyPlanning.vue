@@ -6,19 +6,13 @@
 
 
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapState } from 'vuex';
 
 import PlanningRowPersonnel from '@/components/PlanningRowPersonnel.vue';
     
 export default {
     components: {
         PlanningRowPersonnel,
-    },
-
-    data() {
-        return {
-
-        }
     },
 
     computed: {
@@ -34,9 +28,6 @@ export default {
     },
 
     methods: {
-        ...mapActions("Personnels", ["resetPersonnels"]),
-        ...mapActions("GtaPlannings", ["resetGtaPlannings"]),
-
         /**
          * retourne le planning d'un personnel
          * @param {Object} personnel Objet personnel contenant un ID

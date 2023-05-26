@@ -18,15 +18,16 @@ export default createStore({
 		ressourcesBesoin: null,
 		projetsList: [],
 		projetsActifs: [],
-		ressourcesRHType: null,
+		// ressourcesRHType: null,
 		timeline: {
 			start: null,
 			end: null,
 			now: new Date()
 		},
-		page: {
+		pages: {
 			ressources: false,
-			affectation: false
+			affectations: false,
+			plannings: false,
 		},
 		filterRessources: []
 	},
@@ -197,15 +198,15 @@ export default createStore({
 			}
 		},
 
-		/**
-		 * Enregistre une liste de ressources rh type dans le store
-		 * 
-		 * @param {Object} state Le state de vueX
-		 * @param {Array} aRessourcesRHType La liste des ressources rh type
-		 */
-		setRessourcesRHType(state, aRessourcesRHType) {
-			state.ressourcesRHType = aRessourcesRHType;
-		},
+		// /**
+		//  * Enregistre une liste de ressources rh type dans le store
+		//  * 
+		//  * @param {Object} state Le state de vueX
+		//  * @param {Array} aRessourcesRHType La liste des ressources rh type
+		//  */
+		// setRessourcesRHType(state, aRessourcesRHType) {
+		// 	state.ressourcesRHType = aRessourcesRHType;
+		// },
 
 
 		/**
@@ -270,8 +271,8 @@ export default createStore({
 		 * @param {Object} state Le state de vueX
 		 * @param {Object} oPage Liste des pages, avec value a true sur la page en cours
 		 */
-		setPage(state, oPage) {
-			state.page = oPage;
+		setPages(state, oPage) {
+			state.pages = oPage;
 		},
 
 
@@ -282,7 +283,38 @@ export default createStore({
 		 */
 		setFilterRessources(state, aRessourcesRHType) {
 			state.filterRessources = aRessourcesRHType;
-		}
+		},
+
+		// setAssets(state, {moduleName, data}) 
+		// {
+		// 	if ("reset" === data['mode']) {
+		// 		state[moduleName][data['assetLabel']] = data['data'];
+		// 	} else {
+		// 		for (const index in data['data']) {
+		// 			if ('add' === data['mode']) {
+		// 				state[moduleName][data['assetLabel']].push(data['data'][index]);
+		// 			}
+
+		// 			if ('update' === data['mode']) {
+		// 				let foundIndex = state[moduleName][data['assetLabel']].findIndex(e => e.id == data['data'][index].id);
+
+		// 				if (-14 !== foundIndex) {
+		// 					state[moduleName][data['assetLabel']][foundIndex] = data['data'][index];
+		// 				} else {
+		// 					state[moduleName][data['assetLabel']].push(data['data'][index]);
+		// 				}
+		// 			}
+
+		// 			if ('remove' === data['mode']) {
+		// 				let foundIndex = state[moduleName][data['assetLabel']].findIndex(e => e.id == data['data'][index].id);
+
+		// 				if (-1 !== foundIndex) {
+		// 					state[moduleName][data['assetLabel']].splice(foundIndex, 1);
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
 	},
 
 	actions: {
@@ -404,15 +436,15 @@ export default createStore({
 			}
 		},
 
-		/**
-		 * Ajout ou remplace le state ressourcesRHType
-		 * 
-		 * @param {Object} context L'instance vueX
-		 * @param {Array} ressourcesRHType Liste de ressources rh type
-		 */
-		refreshRessourcesRHType(context, ressourcesRHType) {
-			context.commit('setRessourcesRHType', ressourcesRHType);
-		},
+		// /**
+		//  * Ajout ou remplace le state ressourcesRHType
+		//  * 
+		//  * @param {Object} context L'instance vueX
+		//  * @param {Array} ressourcesRHType Liste de ressources rh type
+		//  */
+		// refreshRessourcesRHType(context, ressourcesRHType) {
+		// 	context.commit('setRessourcesRHType', ressourcesRHType);
+		// },
 
 		/**
 		 * Ajout une timeline de l'application
@@ -448,8 +480,8 @@ export default createStore({
 		 * @param {Obejct} context L'instance VueX
 		 * @param {Object} oPage Liste des differents pages avec un value a true pour la page en cours
 		 */
-		refreshPage(context, oPage) {
-			context.commit('setPage', oPage);
+		refreshPages(context, oPage) {
+			context.commit('setPages', oPage);
 		},
 
 		/**

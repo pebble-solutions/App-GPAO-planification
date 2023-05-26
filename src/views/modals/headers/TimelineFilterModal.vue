@@ -3,12 +3,12 @@
         <div class="row" v-if="!pending.timeline">
             <div class="col">
                 <label class="mx-1" for="datedebut">Date de début</label>
-                <input type="date" :min="minProjetDate" :max="maxProjetDate" class="form-control mx-1" id="datedebut" v-model="tmpTimeline.start">
+                <input type="date" class="form-control mx-1" id="datedebut" v-model="tmpTimeline.start">
             </div>
 
             <div class="col">
                 <label class="mx-1" for="datefin">Date de fin</label>
-                <input type="date" :min="minProjetDate" :max="maxProjetDate" class="form-control mx-1" id="datefin" v-model="tmpTimeline.end">
+                <input type="date" class="form-control mx-1" id="datefin" v-model="tmpTimeline.end">
             </div>
         </div>
     </AppModal>
@@ -23,8 +23,6 @@ export default {
     data() {
         return {
             pending: {
-                projet: false,
-                adresse: false,
                 timeline: true,
             },
             tmpTimeline: {
@@ -37,47 +35,8 @@ export default {
     },
 
     computed: {
-        ...mapState(['projetsList', 'timeline']),
-
-        /**
-         * Retourne la date de début la plus ancienne par rapport à la liste de projet
-         */
-        minProjetDate() {
-            if (0 == this.projetsList.length) {
-                return this.tmpTimeline.start;
-            }
-
-            let minDate = null;
-
-            this.projetsList.forEach(projet => {
-                if (!minDate || minDate > projet.ddp) {
-                    minDate = projet.ddp;
-                }
-            });
-            
-
-            return minDate;
-        },
-
-        /**
-         * Retourne la date de fin la plus loin par rapport à la liste de projet
-         */
-        maxProjetDate() {
-            if (0 == this.projetsList.length) {
-                return this.tmpTimeline.end;
-            }
-
-            let maxDate = null;
-
-            return maxDate;
-        }
+        ...mapState(['timeline']),
     },
-
-    beforeRouteEnter(to, from, next) {
-        next(vm => {
-            vm.routeProjetListId = from.params.projetListId;
-        })
-    },  
 
     components: {AppModal},
 
@@ -99,7 +58,7 @@ export default {
          * Put back the url route before the modal route
          */
         backPreviousRoute() {
-            this.$router.push({name:"Ressources", params:{projetListId: this.routeProjetListId}});
+            this.$router.go(-1);
         },
     },
 

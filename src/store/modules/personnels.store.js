@@ -93,11 +93,19 @@ export default {
                     mode: 'update',
                     personnels: personnels
                 });
+                // const moduleName = 'Personnels';
+                // const data = {
+                //     'mode': 'update',
+                //     'data': personnels,
+                //     'assetLabel': 'personnels'
+                // };
+
+                // commit('setAssets', {moduleName, data});
             }
         },
 
         /**
-         * Ajoute 1 ou plusieurs personnels
+         * supprime 1 ou plusieurs personnels
          * 
          * @param {Object} context L'instance vuex du module
          * @param {array} personnels Liste de personnels

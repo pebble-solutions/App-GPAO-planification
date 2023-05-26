@@ -9,7 +9,11 @@
 
         <template v-slot:header>
             <div class="d-flex align-items-center">
-                <!-- <RessourceFilter></RessourceFilter> -->
+                <TimelineFilter v-if="isPlanning"></TimelineFilter>
+
+                <RessourcesFilter v-if="isPlanning"></RessourcesFilter>
+
+
                 <div v-if="isRessources || isAffectation" class="ms-2">
                     <router-link :to="{name: 'RessourcesAjoutProjet'}" custom v-slot="{navigate, href}">
                         <a :href="href" @click="navigate" class="btn btn-dark">
@@ -70,13 +74,16 @@ import {mapActions, mapState } from 'vuex'
 
 import CONFIG from "@/config.json"
 import '@/js/date.js'
-// import RessourceFilter from './components/headers/RessourceFilter.vue'
+import RessourcesFilter from './components/headers/RessourcesFilter.vue'
 
 import { AssetsCollectionController } from '@/js/app/controllers/AssetsCollectionController.js';
+import TimelineFilter from './components/headers/TimelineFilter.vue'
 
 
 
 export default {
+    components: { AppWrapper, AppMenu, AppMenuItem, SideBarAffectation, BtnShare, RessourcesFilter, TimelineFilter },
+
     data() {
         return {
             cfg: CONFIG.cfg,
@@ -150,12 +157,21 @@ export default {
 
             return false;
         },
+
+        isPlanning() {
+            if (this.$route.name === 'Planning' ||
+                this.$route.name === 'RessourcesFilterPlanning' ||
+                this.$route.name === 'TimelineFilterPlanning') {
+
+                //this.setActualPage('plannings');
+                return true;
+            }
+            return false;
+        }
     },
 
-    components: { AppWrapper, AppMenu, AppMenuItem, SideBarAffectation, BtnShare },
-
     methods: {
-        ...mapActions(['refreshTimeline', 'refreshProjetsActifs', 'refreshPage', 'refreshRessourcesRHType']),
+        ...mapActions(['refreshTimeline', 'refreshProjetsActifs', 'refreshPages']),
 
         /**
          * Retourne la représentation d'une date lisible par un humain.
@@ -222,7 +238,7 @@ export default {
             this.listElements();
             this.getAllProjet();
             this.setTimeline();
-            this.getRessourcesRHType();
+            // this.getRessourcesRHType();
         },
 
         /**
@@ -261,52 +277,40 @@ export default {
 
             this.refreshTimeline(tmpTimeline);
         },
-
-        setActualPage(actualPage) {
-            let page = {};
-
-            switch (actualPage) {
-                case 'ressources':
-                    page = {
-                        ressources: true,
-                        affecation: false
-                    }
-
-                    this.refreshPage(page)
-                    break;
-
-                case 'affecations':
-                    page = {
-                        ressources: false,
-                        affectation: true
-                    }
-
-                    this.refreshPage(page);
-                    break
-                
-                default: 
-                    page = {
-                        ressources: false,
-                        affectation: false
-                    }
-
-                    this.refreshPage(page);
-            }
-        },
-
         /**
-         * Récupère une liste de ressources rh type et l'enregistre dans le store
+         * met à jour la page au niveau du store
+         * 
+         * @param {String} actualPage la page actuelle
+         * 
+         * @todo amelierer la gestion des pages
+         *  - faire un objet page
+         *  - faire un constate pages pour reinitialer les pages avant affectation et modification du store
          */
-        getRessourcesRHType() {
-            let urlApi = "/ressourcesRHType/GET/list";
+        setActualPage(actualPage) {
+            let pages = {
+                ressources: false,
+                affectations: false,
+                plannings: false
+            }
 
-            this.$app.apiGet(urlApi)
-            .then((data) => {
-                this.refreshRessourcesRHType(data);
+            pages[actualPage] = true;
 
-                this.pending.ressources_rh_type=false;
-            }).catch(this.$app.catchError);
+            this.refreshPages(pages);
         },
+
+        // /**
+        //  * Récupère une liste de ressources rh type et l'enregistre dans le store
+        //  */
+        // getRessourcesRHType() {
+        //     let urlApi = "/ressourcesRHType/GET/list";
+
+        //     this.$app.apiGet(urlApi)
+        //     .then((data) => {
+        //         this.refreshRessourcesRHType(data);
+
+        //         this.pending.ressources_rh_type=false;
+        //     }).catch(this.$app.catchError);
+        // },
 
         /**
          * met à jour la variable link avec l'url en cours
@@ -316,8 +320,7 @@ export default {
         },
 
         initAssets() {
-            console.log(this.$store.state);
-            console.log(this.$store.rootState);
+            /** Collection des personnels */
             let collection = new AssetsCollectionController(this, {
                 assetName: 'personnels',
                 updateAction: 'updatePersonnels',
@@ -327,11 +330,20 @@ export default {
 
             this.$assets.addCollection('personnels', collection);
 
+            /** Collection des gtaPLanning */
             this.$assets.addCollection('gta_plannings', new AssetsCollectionController(this, {
                 assetName: 'gtaPlannings',
                 updateAction: 'updateGtaPlannings',
                 apiRoute: 'v2/gta_planning',
                 namespace: 'GtaPlannings'
+            }));
+
+            /** Collection des ressources RH Type */
+            this.$assets.addCollection('ressourcesRHType', new AssetsCollectionController(this, {
+                assetName: 'ressourcesRHType',
+                updateAction: 'updateRessourcesRHType',
+                apiRoute: 'v2/ressource/rhtype',
+                namespace: 'RessourcesRHType'
             }));
         }
     },

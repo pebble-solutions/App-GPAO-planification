@@ -24,9 +24,9 @@ const routes = [
                 component: () => import('../views/modals/ConfigHeuresModal.vue')
             },
             {
-                path: 'edittimeline',
-                name: 'EditTimeline',
-                component: () => import('../views/modals/EditTimelineModal.vue')
+                path: 'timelinefilter',
+                name: 'TimelineFilter',
+                component: () => import('../views/modals/headers/TimelineFilterModal.vue')
             },
             {
                 path: 'ajoutbesoins/:id',
@@ -38,11 +38,11 @@ const routes = [
                 name: 'RessourcesAjoutProjet',
                 component: () => import('../views/modals/AddProjetsModal.vue')
             },
-            // {
-            //     path: 'filtermetier',
-            //     name: 'RessourcesFilter',
-            //     component: () => import('../views/modals/headers/FilterRessourcesModal.vue')
-            // }
+            {
+                path: 'filtermetier',
+                name: 'RessourcesFilter',
+                component: () => import('../views/modals/headers/RessourcesFilterModal.vue')
+            }
         ]
     },
 
@@ -54,7 +54,7 @@ const routes = [
             {
                 path: 'edittimeline',
                 name: 'EditTimelineAffectation',
-                component: () => import('../views/modals/EditTimelineModal.vue')
+                component: () => import('../views/modals/headers/TimelineFilterModal.vue')
             },
             {
                 path: 'addprojets',
@@ -70,10 +70,15 @@ const routes = [
         component: () => import('../views/Planning.vue'),
         children: [
             {
-                path: 'metierFiltre',
-                name : 'MetierFiltre',
-                component: () => import('../views/modals/headers/MetierFiltreModal.vue')
-            }
+                path: 'filtermetier',
+                name: 'RessourcesFilterPlanning',
+                component: () => import('../views/modals/headers/RessourcesFilterModal.vue')
+            },
+            {
+                path: 'timelinefilter',
+                name: 'TimelineFilterPlanning',
+                component: () => import('../views/modals/headers/TimelineFilterModal.vue')
+            },
         ]
     },
 
