@@ -34,7 +34,11 @@ export default {
          * @returns {Array}
          */
         getPlanningFromPersonnel(personnel) {
-            return this.gtaPlanningsData.filter(e => e.structure__personnel_id === personnel.id);
+            let found = this.gtaPlanningsData.filter(e => e.structure__personnel_id === personnel.id);
+
+            //console.log('found for '+personnel.cache_nom, found);
+
+            return found;
         },
 
         /**

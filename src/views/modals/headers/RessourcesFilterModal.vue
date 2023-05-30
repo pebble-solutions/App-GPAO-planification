@@ -28,15 +28,6 @@
         
 
         <div v-else class="list-group list-group-flush">
-            <!-- <div v-for="ressource in ressourcesRHTypeData" :key="'ressource-'+ressource.id" class="list-group-item">       
-                <div class="form-check text-nowrap">
-                    <input type="checkbox" class="form-check-input" :id="'ckb-ressource-'+ressource.id" :value="ressource.id" v-model="checkedRessourcesId" :aria-label="ressource.nom" name="checkedRessourcesId[]">
-                    <label class="form-check-label" :for="'ckb-ressource-'+ressource.id">
-                        <h6>{{ressource.nom}}</h6>
-                    </label>
-                </div>
-            </div> -->
-
             <RessourcesFilterModalItem v-for="ressource in ressourcesRHTypeData" :key="'ressource-'+ressource.id" :ressource="ressource" :ischecked="isChecked(ressource.id)" @update-checked="updateCheckedRessourcesId"/>
         </div>
     </AppModal>
@@ -88,13 +79,25 @@ export default {
             this.$router.go(-1);
         },
 
+        /**
+         * Verifie si la ressource est dans le tableau des ressources cocher
+         * 
+         * @param {integer} ressourceId l'id de la ressource a verifier
+         * 
+         * @return {boolean} true si la ressource est cocher, false sinon
+         */
         isChecked(ressourceId) {
-            console.log(this.checkedRessourcesId);
+            // console.log(this.checkedRessourcesId);
             let foundChecked = this.checkedRessourcesId.find(id => id == ressourceId);
 
             return foundChecked ? true : false;
         },
 
+        /**
+         * Met a jour le tableau des ressources cocher
+         * 
+         * @param {integer} payload l'id de la ressource a ajouter ou supprimer
+         */
         updateCheckedRessourcesId(payload) {
             let foundId = this.checkedRessourcesId.findIndex(id => id == payload);
 
@@ -123,10 +126,11 @@ export default {
             await this.ressourcesRHType.load();
         },
 
+        /**
+         * Charge les ressources cocher dans une variable du component
+         */
         loadCheckedRessourcesId() {
-            console.log('beforeload', this.RessourcesRHType);
             this.checkedRessourcesId = this.RessourcesRHType['ressourcesRHTypeChecked'];
-            console.log('afterload', this.checkedRessourcesId);
         },
     },
 
