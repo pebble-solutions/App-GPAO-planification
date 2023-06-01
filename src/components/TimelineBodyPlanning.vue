@@ -1,6 +1,6 @@
 <template>
     <tbody class="bg-white">
-        <PlanningRowPersonnel v-for="personnel in personnelsData" :key="personnel.id" :personnel="personnel" :planning-items="getPlanningFromPersonnel(personnel)"/>
+        <PlanningRowPersonnel v-for="personnel in personnelsData" :key="personnel.id" :personnel="personnel" :planning-items="getPlanningFromPersonnel(personnel)" :days-list="daysList"/>
     </tbody>
 </template>
 
@@ -9,6 +9,7 @@
 import { mapState } from 'vuex';
 
 import PlanningRowPersonnel from '@/components/PlanningRowPersonnel.vue';
+import { listIntervalDays } from '../js/date';
     
 export default {
     components: {
@@ -16,7 +17,7 @@ export default {
     },
 
     computed: {
-        ...mapState(['Personnels', 'GtaPlannings']),
+        ...mapState(['Personnels', 'GtaPlannings', 'timeline']),
 
         personnelsData() {
             return this.Personnels['personnels'];
@@ -24,7 +25,17 @@ export default {
 
         gtaPlanningsData() {
             return this.GtaPlannings['gtaPlannings'];
-        }
+        },
+
+        /**
+         * Retourne la liste des dates (objet Date) start et end.
+         * 
+         * @returns {Array}
+         */
+        daysList() 
+        {
+            return listIntervalDays(this.timeline.start, this.timeline.end);
+        },
     },
 
     methods: {

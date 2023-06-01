@@ -126,6 +126,7 @@ import '@/js/text.js';
 import '@/js/date.js';
 
 import Cell from '@/components/Cell.vue';
+import { listIntervalDays } from '../js/date';
 
 export default {
     data() {
@@ -153,7 +154,7 @@ export default {
          * @returns {Array}
          */
         daysList() {
-            return Date.listDays(this.timeline.start, this.timeline.end);
+            return listIntervalDays(this.timeline.start, this.timeline.end);
         },
 
         /**

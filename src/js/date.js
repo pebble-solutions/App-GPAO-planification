@@ -110,12 +110,15 @@ Date.prototype.getSqlDate = function(time) {
 Date.dayFrDict = ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'];
 Date.monthFrDict = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
-Date.listDays = function(dateStart, dateEnd) {
+export function listIntervalDays(dateStart, dateEnd) {
 	let days = [];
 	
 	if (dateEnd) {
-		let start = dateStart;
-		let end = dateEnd;
+		let start = new Date(dateStart);
+		let end = new Date(dateEnd);
+
+		start.setHours(0,0,0,0,);
+		end.setHours(0,0,0,0,);
 
 		let diff_time = end.getTime() - start.getTime();
 		let diff_days = Math.round(diff_time / (1000 * 3600* 24));
@@ -129,12 +132,12 @@ Date.listDays = function(dateStart, dateEnd) {
 	}
 
 	return days;
-};
+}
 
-Date.listWeeks = function(dateStart, dateEnd) {
+export function listIntervalWeeks(dateStart, dateEnd) {
 	let weeks = [];
 
-	let days = Date.listDays(dateStart, dateEnd);
+	let days = listIntervalDays(dateStart, dateEnd);
 
 	let n = 0;
 	let start = null;
@@ -172,12 +175,12 @@ Date.listWeeks = function(dateStart, dateEnd) {
 	}
 
 	return weeks;
-};
+}
 
-Date.listMonths = function(dateStart, dateEnd) {
+export function listIntervalMonths(dateStart, dateEnd) {
 	let months = [];
 
-	let days = Date.listDays(dateStart, dateEnd);
+	let days = listIntervalDays(dateStart, dateEnd);
 
 	let n = 0;
 	let start = null;
@@ -213,4 +216,4 @@ Date.listMonths = function(dateStart, dateEnd) {
 	}
 
 	return months;
-};
+}

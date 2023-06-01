@@ -1,35 +1,19 @@
 <template>
-    <tr :id="rowId">
-        <th class="bg-white row-header">
+    <tr :id="rowId" class="">
+
+        
+        <th class="bg-white row-header position-relative">
             <PersonnelName :personnel="personnel"/>
+            <div class="position-absolute bg-secondary rounded" :style="'left:'+lp+'px; width:'+w+'px; top:5px; bottom:5px;'"></div>
         </th>
 
-        <td class="position-relative">
-            <div class="position-absolute bg-secondary rounded" :style="'left:'+lp+'px; width:'+w+'px; top:5px; bottom:5px;'"></div>
+        <td v-for="(jour, j) in daysList" :key="j"
+            class="text-start planning-cell"
+            :class="{'border-end border-4': jour.getDay() === 0}"
+        >
         </td>
-
-        <!-- <td class="position-relative">
-            <div class="position-absolute bg-secondary rounded" 
-            :style="'left:'+leftPosition()+'px; width: '+ width()+'px;'" 
-            v-for="planning in filterPlanningFromTimeline" :key="planning.id"></div>
-        </td> -->
-
-        <template v-for="(jour, j) in daysList" :key="j">
-            <td v-if="jour.getDate() !== timeline.start.getDate()"
-                class="text-start planning-cell"
-                :class="{'border-end border-4': jour.getDay() === 0}"
-            >
-            </td>
-        </template>
     </tr>
 </template>
-
-<style lang="scss">
-.planning-cell {
-    min-width:50px;
-    position:relative;
-}
-</style>
 
 
 <script>
@@ -37,6 +21,7 @@ import { mapState } from 'vuex';
 import '@/js/date.js';
 
 import PersonnelName from '@/components/personnel/PersonnelName.vue';
+import { listIntervalDays } from '../js/date';
 
 export default {
     components: {
@@ -45,7 +30,8 @@ export default {
 
     props: {
         personnel: Object,
-        planningItems: Array
+        planningItems: Array,
+        daysList: Array,
     },
 
     data() {
@@ -58,25 +44,21 @@ export default {
     computed: {
         ...mapState(['timeline']),
 
-        rowId() {
-            return 'personnel-item-'+this.personnel.id
-        },
-
         /**
-         * Retourne la liste des dates (objet Date) start et end.
+         * Retourne l'id de la ligne
          * 
-         * @returns {Array}
+         * @returns {String}
          */
-         daysList() {
-            return Date.listDays(this.timeline.start, this.timeline.end);
+        rowId() 
+        {
+            return 'personnel-item-'+this.personnel.id
         },
 
         /**
          * Filtre le tableau planningItems en fonction de la timeline
          */
-        filterPlanningFromTimeline() {
-            console.log('before filter planning', this.planningItems);
-
+        filterPlanningFromTimeline() 
+        {
             if (this.planningItems.length === 0) {
                 return [];
             }
@@ -85,8 +67,6 @@ export default {
                 let insideTimeline = false;
                 let dd = new Date(item.dd);
                 let df = new Date(item.df);
-
-                console.log('df', item.df);
 
                 if (item.df === null) {
                     if (dd <= this.timeline.end) {
@@ -106,11 +86,8 @@ export default {
                     }
                 }
 
-
                 return insideTimeline;
             });
-
-            console.log('filter',PlanningFromTimeline);
 
             return PlanningFromTimeline;
         }
@@ -127,10 +104,6 @@ export default {
             let leftPosition = 0;
 
             if (row && this.filterPlanningFromTimeline.length > 0) {
-                console.log('in method');
-                console.log(this.personnel.cache_nom, this.planningItems.length);
-                console.log('planning', this.planningItems);
-
                 let header = row.querySelector('.row-header');
                 
                 let rowSize = row.offsetWidth;
@@ -140,14 +113,12 @@ export default {
                 let unit = daysSize / this.daysList.length;
             
                 let dayBegins = new Date(this.filterPlanningFromTimeline[0].dd);
-                let diff = Date.listDays(this.timeline.start, dayBegins);
+                let diff = listIntervalDays(this.timeline.start, dayBegins);
 
                 let diffSize = diff.length * unit;
 
-                leftPosition = diffSize;
+                leftPosition = diffSize + headerSize;
             }
-
-            console.log('lg', leftPosition);
 
             return leftPosition;
         },
@@ -170,8 +141,6 @@ export default {
 
                 let unit = daysSize / this.daysList.length;
 
-                console.log('unit', unit);
-
                 let dayBegins = new Date(this.filterPlanningFromTimeline[0].dd);
                 let dayEnd = this.filterPlanningFromTimeline[this.filterPlanningFromTimeline.length-1].df;
                 if (dayEnd) {
@@ -180,30 +149,23 @@ export default {
                     dayEnd = this.timeline.end;
                 }
                 
-                console.log('dayBegins', dayBegins);
-                console.log('dayEnd', dayEnd);
-
                 if (dayBegins < this.timeline.start) {
                     dayBegins = this.timeline.start;
                 }
-
+                
                 if (dayEnd > this.timeline.end)  {
                     dayEnd = this.timeline.end;
                 }
 
-                let diff = Date.listDays(dayBegins, dayEnd);
+                let diff = listIntervalDays(dayBegins, dayEnd);
 
-                console.log('diff', diff);
-
-                // console.log(this.planningItems);
-                // console.log(this.planningItems[this.planningItems.length-1].df);
+                console.log('diff', dayBegins, dayEnd, diff);
 
                 let diffSize = diff.length * unit;
 
                 width = diffSize;
             }
 
-            console.log('w', width);
             console.log('--------------------next-------------------');
 
             return width;

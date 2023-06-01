@@ -93,6 +93,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import { listIntervalDays } from '../js/date';
 
 export default {
     computed: {
@@ -103,7 +104,7 @@ export default {
          * @returns {Array}
          */
         daysList() {
-            return Date.listDays(this.timeline.start, this.timeline.end);
+            return listIntervalDays(this.timeline.start, this.timeline.end);
         },
     }
 }

@@ -87,7 +87,7 @@ export default {
          * @return {boolean} true si la ressource est cocher, false sinon
          */
         isChecked(ressourceId) {
-            // console.log(this.checkedRessourcesId);
+            console.log(this.checkedRessourcesId);
             let foundChecked = this.checkedRessourcesId.find(id => id == ressourceId);
 
             return foundChecked ? true : false;

@@ -16,7 +16,7 @@
 
         <tr>
             <th class="bg-white">{{ listLabel }}</th>
-            <th v-for="day in daysList" :key="'day-'+day" :class="{'border-end border-4': day.getDay() === 0, 'text-primary': day.getSqlDate() == timeline.now.getSqlDate()}">
+            <th v-for="day in daysList" class="planning-cell" :key="'day-'+day" :class="{'border-end border-4': day.getDay() === 0, 'text-primary': day.getSqlDate() == timeline.now.getSqlDate()}">
                 <span class="d-block">{{dayDict[day.getDay()]}}</span>
                 {{day.getDate()}}
             </th>
@@ -27,6 +27,9 @@
 <script>
 import '@/js/date.js';
 import { mapState } from 'vuex';
+import { listIntervalDays } from '../js/date';
+import { listIntervalWeeks } from '../js/date';
+import { listIntervalMonths } from '../js/date';
 
 export default {
     props: {
@@ -48,7 +51,7 @@ export default {
          * @returns {Array}
          */
         daysList() {
-            return Date.listDays(this.timeline.start, this.timeline.end);
+            return listIntervalDays(this.timeline.start, this.timeline.end);
         },
 
         /**
@@ -57,7 +60,7 @@ export default {
          * @returns {array}
          */
         weeksList() {
-            return Date.listWeeks(this.timeline.start, this.timeline.end);
+            return listIntervalWeeks(this.timeline.start, this.timeline.end);
         },
 
         /**
@@ -66,7 +69,7 @@ export default {
          * @returns {array}
          */
         monthsList() {
-            return Date.listMonths(this.timeline.start, this.timeline.end);
+            return listIntervalMonths(this.timeline.start, this.timeline.end);
         },
     },
 }

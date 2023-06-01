@@ -1,13 +1,22 @@
 <template>
     <div class="col bg-light">
         <table class="table table-sm table-bordered fixe-col-one" :class="{'table-hover': tablehover}">
-            <TimelineHeader  :listLabel="listLabel"></TimelineHeader>
+            <TimelineHeader :listLabel="listLabel"></TimelineHeader>
             
             <TimelineBodyPlanning v-if="mode == 'planning'"></TimelineBodyPlanning>
             <TimelineBody></TimelineBody>
         </table>
     </div>
 </template>
+
+<style lang="scss">
+.planning-cell {
+    min-width:50px;
+    max-width: 50px;
+    width:50px;
+    position:relative;
+}
+</style>
 
 <script>
 import TimelineHeader from '@/components/TimelineHeader.vue';
@@ -29,7 +38,7 @@ export default {
     },
 
     computed: {
-        ...mapState(['projet'])
+        ...mapState(['projet']),
     },
 
     components: { TimelineHeader, TimelineBody, TimelineBodyPlanning },

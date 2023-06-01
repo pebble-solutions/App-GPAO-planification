@@ -81,6 +81,7 @@ import Cell from '@/components/Cell.vue';
 import '@/js/date.js';
 import '@/js/text.js';
 import { mapActions, mapState } from 'vuex';
+import { listIntervalDays } from '../js/date';
 
 export default {
     props: {
@@ -112,7 +113,7 @@ export default {
          * @returns {Array}
          */
         daysList() {
-            return Date.listDays(this.timeline.start, this.timeline.end);
+            return listIntervalDays(this.timeline.start, this.timeline.end);
         }
     },
 
