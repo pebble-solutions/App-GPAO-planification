@@ -18,7 +18,6 @@ export default createStore({
 		ressourcesBesoin: null,
 		projetsList: [],
 		projetsActifs: [],
-		// ressourcesRHType: null,
 		timeline: {
 			start: null,
 			end: null,

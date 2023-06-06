@@ -1,7 +1,5 @@
 <template>
-    <tr :id="rowId" class="">
-
-        
+    <tr :id="rowId" class="">      
         <th class="bg-white row-header position-relative">
             <PersonnelName :personnel="personnel"/>
             <div class="position-absolute bg-secondary rounded" :style="'left:'+lp+'px; width:'+w+'px; top:5px; bottom:5px;'"></div>
@@ -38,6 +36,15 @@ export default {
         return {
             lp: null,
             w: null,
+        }
+    },
+
+    watch: {
+        /**
+         * Lance resizeHandler() quand la timeline change
+         */
+        daysList() {
+            this.resizeHandler();
         }
     },
 
@@ -159,27 +166,36 @@ export default {
 
                 let diff = listIntervalDays(dayBegins, dayEnd);
 
-                console.log('diff', dayBegins, dayEnd, diff);
-
                 let diffSize = diff.length * unit;
 
                 width = diffSize;
             }
 
-            console.log('--------------------next-------------------');
-
             return width;
         },
+
+        /**
+         * Gère le redimensionnement des barres de plannings
+         */
+        resizeHandler() {
+            this.lp = this.leftPosition();
+            this.w = this.width();
+        }
+    },
+
+    created() {
+        window.addEventListener('resize', this.resizeHandler);
+    },
+
+    unmounted() {
+        window.removeEventListener('resize', this.resizeHandler);
     },
 
     mounted() {
         this.lp = this.leftPosition();
         this.w = this.width();
 
-        document.addEventListener('resize', () => {
-            this.lp = this.leftPosition();
-            this.w = this.width();
-        });
+        document.addEventListener('resize', this.resizeHandler);
     }
 };
 </script>

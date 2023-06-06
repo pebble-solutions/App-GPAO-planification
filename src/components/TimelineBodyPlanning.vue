@@ -47,8 +47,6 @@ export default {
         getPlanningFromPersonnel(personnel) {
             let found = this.gtaPlanningsData.filter(e => e.structure__personnel_id === personnel.id);
 
-            //console.log('found for '+personnel.cache_nom, found);
-
             return found;
         },
 
@@ -68,12 +66,6 @@ export default {
 
             return ids.join(',');
         }
-    },
-
-    mounted() {
-        console.log('personnels mounted', this.personnelsData);
-        console.log('gtaPlannings mounted', this.GtaPlannings['gtaPlannings']);
-    }
-  
+    },  
 };
 </script>

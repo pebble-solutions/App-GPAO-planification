@@ -345,6 +345,10 @@ export default {
                 apiRoute: 'v2/ressource/rhtype',
                 namespace: 'RessourcesRHType'
             }));
+        },
+
+        resetStore() {
+            console.log('resetStore', this.$store);
         }
     },
 
@@ -353,7 +357,9 @@ export default {
         this.$app.addEventListener('structureChanged', (structureId) => {
 			this.switchStructure(structureId);
             this.initAssets();
+            this.resetStore();
 		});
+
     }
 
 }

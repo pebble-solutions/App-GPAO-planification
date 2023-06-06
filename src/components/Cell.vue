@@ -148,8 +148,7 @@ export default {
                     newRessourcesBesoin['data'] = [data];
 
                     this.refreshRessourcesBesoin(newRessourcesBesoin);
-                }).catch( (error) => {
-                    console.log(error);
+                }).catch( () => {
                     this.$refs.valueinput.classList.add("bg-warning");
                     this.$refs.valueinput.disabled = false;
                 });

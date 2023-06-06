@@ -14,7 +14,7 @@
     min-width:50px;
     max-width: 50px;
     width:50px;
-    position:relative;
+    // position:relative;
 }
 </style>
 

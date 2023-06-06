@@ -161,8 +161,6 @@ export default {
         recordProjet(){
             this.pending.projet = true;
 
-            console.log(this.projet);
-
             let urlApiProjet = "/projet/POST/"+this.projet.id +"/";
 
             this.$app.apiPost(urlApiProjet, this.tmpProjet)
