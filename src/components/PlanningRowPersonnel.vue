@@ -7,7 +7,7 @@
 
         <td v-for="(jour, j) in daysList" :key="j"
             class="text-start planning-cell"
-            :class="{'border-end border-4': jour.getDay() === 0}"
+            :class="{'border-end-week': jour.getDay() === 0}"
         >
         </td>
     </tr>

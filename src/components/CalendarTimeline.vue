@@ -16,6 +16,10 @@
     width:50px;
     // position:relative;
 }
+
+.border-end-week {
+    border-right: 4px solid #dee2e6 !important;
+}
 </style>
 
 <script>

@@ -9,14 +9,14 @@
 
         <tr>
             <th></th>
-            <th :colspan="week.n" class="border-end border-4" v-for="week in weeksList" :key="'week-'+week.week">
+            <th :colspan="week.n" class="border-end-week" v-for="week in weeksList" :key="'week-'+week.week">
                 Sem. {{week.week}}
             </th>
         </tr>
 
         <tr>
             <th class="bg-white">{{ listLabel }}</th>
-            <th v-for="day in daysList" class="planning-cell" :key="'day-'+day" :class="{'border-end border-4': day.getDay() === 0, 'text-primary': day.getSqlDate() == timeline.now.getSqlDate()}">
+            <th v-for="day in daysList" class="planning-cell" :key="'day-'+day" :class="{'border-end-week': day.getDay() === 0, 'text-primary': day.getSqlDate() == timeline.now.getSqlDate()}">
                 <span class="d-block">{{dayDict[day.getDay()]}}</span>
                 {{day.getDate()}}
             </th>
